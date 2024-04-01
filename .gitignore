@@ -20,7 +20,7 @@
 # Go workspace file
 go.work
 
-.env
+deploy/.env
 *.log
 
 *.idea/

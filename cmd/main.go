@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"mth/internal/delivery"
 	"mth/pkg/config"
 	"mth/pkg/database"
 	"mth/pkg/log"
@@ -22,12 +23,15 @@ func main() {
 	logger.Info("Config Initialized")
 
 	jaegerURL := fmt.Sprintf("http://%v:%v/api/traces", viper.GetString(config.JaegerHost), viper.GetString(config.JaegerPort))
-	tracer := trace.InitTracer(jaegerURL, serviceName)
+	tracer := tracing.InitTracer(jaegerURL, serviceName)
 	logger.Info("Tracer Initialized")
 
 	db := database.GetDB()
 	logger.Info("Database Initialized")
 
-	_ = db
-	_ = tracer
+	delivery.Start(
+		db,
+		tracer,
+		logger,
+	)
 }

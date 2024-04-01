@@ -1,0 +1,70 @@
+definitions:
+  models.Tag:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.TagCreate:
+    properties:
+      name:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /tag/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Tag create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.TagCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created tag with id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - tag
+  /tag/get_all:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created tag with id
+          schema:
+            items:
+              $ref: '#/definitions/models.Tag'
+            type: array
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - tag
+swagger: "2.0"
