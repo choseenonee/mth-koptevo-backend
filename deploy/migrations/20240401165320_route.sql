@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS routes (
     properties JSONB
 );
 
--- TODO: нахуя
+
 CREATE TABLE routes_places (
     id SERIAL PRIMARY KEY,
     position INTEGER,
