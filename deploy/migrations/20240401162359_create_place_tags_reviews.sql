@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS tags (
 
 CREATE TABLE IF NOT EXISTS city (
     id SERIAL PRIMARY KEY,
-    name VARCHAR UNIQUE
+    name VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS district (
@@ -17,9 +17,9 @@ CREATE TABLE IF NOT EXISTS district (
     properties JSONB
 );
 
+-- TODO: reviews_average
 CREATE TABLE IF NOT EXISTS places (
     id SERIAL PRIMARY KEY,
-    reviews_avg INTEGER,
     city_id INTEGER REFERENCES city(id),
     district_id INTEGER REFERENCES district(id),
     properties JSONB
@@ -32,10 +32,16 @@ CREATE TABLE places_tags (
     UNIQUE (tag_id, place_id)
 );
 
--- TODO: сделать референс на users
-CREATE TABLE IF NOT EXISTS reviews (
+CREATE TABLE IF NOT EXISTS places_reviews (
     id SERIAL PRIMARY KEY,
-    place_id INTEGER REFERENCES places(id),
+    place_id INTEGER,
+    author_id INTEGER,
+    properties JSONB
+);
+
+CREATE TABLE IF NOT EXISTS route_reviews (
+    id SERIAL PRIMARY KEY,
+    route_id INTEGER,
     author_id INTEGER,
     properties JSONB
 );
