@@ -47,6 +47,7 @@ func (t TagHandler) Create(c *gin.Context) {
 		return
 	}
 
+	span.AddEvent(tracing.CallToService)
 	id, err := t.tagService.Create(ctx, tagCreate)
 	if err != nil {
 		span.RecordError(err, trace.WithAttributes(
@@ -71,6 +72,7 @@ func (t TagHandler) GetAll(c *gin.Context) {
 	ctx, span := t.tracer.Start(c.Request.Context(), CreateTag)
 	defer span.End()
 
+	span.AddEvent(tracing.CallToService)
 	tags, err := t.tagService.GetAll(ctx)
 	if err != nil {
 		span.RecordError(err, trace.WithAttributes(
