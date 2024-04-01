@@ -9,7 +9,7 @@ import (
 	"mth/pkg/trace"
 )
 
-const serviceName = "gin"
+const serviceName = "mth backend"
 
 func main() {
 	logger, loggerInfoFile, loggerErrorFile := log.InitLogger()
