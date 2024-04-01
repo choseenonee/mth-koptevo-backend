@@ -8,20 +8,15 @@ import (
 )
 
 const (
-	DBName            = "DB_NAME"
-	DBUser            = "DB_USER"
-	DBPassword        = "DB_PASSWORD"
-	DBPort            = "DB_PORT"
-	DBHost            = "DB_HOST"
-	TimeOut           = "TIME_OUT"
-	JWTExpire         = "JWT_EXPIRE"
-	Secret            = "SECRET"
-	SessionExpiration = "SESSION_EXPIRATION"
-	RedisHost         = "REDIS_HOST"
-	RedisPassword     = "REDIS_PASSWORD"
-	RedisPort         = "REDIS_PORT"
-	JaegerHost        = "JAEGER_HOST"
-	JaegerPort        = "JAEGER_PORT"
+	DBName     = "DB_NAME"
+	DBUser     = "DB_USER"
+	DBPassword = "DB_PASSWORD"
+	DBPort     = "DB_PORT"
+	DBHost     = "DB_HOST"
+	JWTExpire  = "JWT_EXPIRE"
+	Secret     = "SECRET"
+	JaegerHost = "JAEGER_HOST"
+	JaegerPort = "JAEGER_PORT"
 )
 
 func InitConfig() {
