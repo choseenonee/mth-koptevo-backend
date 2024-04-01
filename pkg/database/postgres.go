@@ -3,10 +3,13 @@ package database
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"github.com/uptrace/opentelemetry-go-extra/otelsql"
+	"github.com/uptrace/opentelemetry-go-extra/otelsqlx"
 	"mth/pkg/config"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 )
 
 func GetDB() *sqlx.DB {
@@ -18,7 +21,8 @@ func GetDB() *sqlx.DB {
 		viper.GetInt(config.DBPort),
 		viper.GetString(config.DBName),
 	)
-	db, err := sqlx.Connect("postgres", connString)
+	db, err := otelsqlx.Open("postgres", connString,
+		otelsql.WithAttributes(semconv.DBSystemSqlite))
 	if err != nil {
 		panic(fmt.Sprintf("Error while connecting to DB. Error: %v", err.Error()))
 	}
