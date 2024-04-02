@@ -86,6 +86,15 @@ func (r routeRepo) Create(ctx context.Context, route models.RouteCreate) (int, e
 	return createdRouteID, nil
 }
 
+func contains[T models.Tag | int](slice []T, elem T) bool {
+	for _, i := range slice {
+		if i == elem {
+			return true
+		}
+	}
+	return false
+}
+
 func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, error) {
 	query := `SELECT r.id, r.city_id, r.price, r.name, r.properties, t.id, t.name, rp.place_id  FROM routes r
 				LEFT JOIN routes_places rp on r.id = rp.route_id
@@ -118,10 +127,14 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 			var tag models.Tag
 			tag.ID = int(tagID.Int64)
 			tag.Name = tagName.String
-			route.Tags = append(route.Tags, tag)
+			if !contains(route.Tags, tag) {
+				route.Tags = append(route.Tags, tag)
+			}
 		}
 		if placeID.Valid {
-			route.PlaceIDs = append(route.PlaceIDs, int(placeID.Int64))
+			if !contains(route.PlaceIDs, int(placeID.Int64)) {
+				route.PlaceIDs = append(route.PlaceIDs, int(placeID.Int64))
+			}
 		}
 	}
 
