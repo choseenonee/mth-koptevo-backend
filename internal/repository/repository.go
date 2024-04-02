@@ -19,3 +19,9 @@ type Review interface {
 	UpdateOnPlace(ctx context.Context, reviewUpd models.ReviewUpdate) error
 	UpdateOnRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error
 }
+
+type Place interface {
+	Create(ctx context.Context, placeCreate models.PlaceCreate) (int, error)
+	GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int) ([]models.Place, error)
+	GetByID(ctx context.Context, placeID int)
+}

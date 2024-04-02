@@ -15,6 +15,56 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/place/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "place"
+                ],
+                "parameters": [
+                    {
+                        "description": "Place with tag ids create",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PlaceCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created place with id",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/review/author": {
             "get": {
                 "consumes": [
@@ -450,6 +500,24 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.PlaceCreate": {
+            "type": "object",
+            "properties": {
+                "city_id": {
+                    "type": "integer"
+                },
+                "district_id": {
+                    "type": "integer"
+                },
+                "properties": {},
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "models.PlaceReview": {
             "type": "object",
             "properties": {
@@ -495,10 +563,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "place_id": {
+                "properties": {},
+                "route_id": {
                     "type": "integer"
-                },
-                "properties": {}
+                }
             }
         },
         "models.RouteReviewCreate": {
@@ -507,10 +575,10 @@ const docTemplate = `{
                 "author_id": {
                     "type": "integer"
                 },
-                "place_id": {
+                "properties": {},
+                "route_id": {
                     "type": "integer"
-                },
-                "properties": {}
+                }
             }
         },
         "models.Tag": {

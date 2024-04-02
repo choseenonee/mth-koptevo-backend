@@ -1,4 +1,16 @@
 definitions:
+  models.PlaceCreate:
+    properties:
+      city_id:
+        type: integer
+      district_id:
+        type: integer
+      properties: {}
+      tag_ids:
+        items:
+          type: integer
+        type: array
+    type: object
   models.PlaceReview:
     properties:
       author_id:
@@ -29,17 +41,17 @@ definitions:
         type: integer
       id:
         type: integer
-      place_id:
-        type: integer
       properties: {}
+      route_id:
+        type: integer
     type: object
   models.RouteReviewCreate:
     properties:
       author_id:
         type: integer
-      place_id:
-        type: integer
       properties: {}
+      route_id:
+        type: integer
     type: object
   models.Tag:
     properties:
@@ -67,6 +79,38 @@ definitions:
 info:
   contact: {}
 paths:
+  /place/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Place with tag ids create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlaceCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created place with id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - place
   /review/author:
     get:
       consumes:

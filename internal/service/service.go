@@ -19,3 +19,7 @@ type Review interface {
 	UpdateOnPlace(ctx context.Context, reviewUpd models.ReviewUpdate) error
 	UpdateOnRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error
 }
+
+type Place interface {
+	Create(ctx context.Context, placeCreate models.PlaceCreate) (int, error)
+}
