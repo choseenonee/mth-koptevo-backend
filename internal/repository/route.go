@@ -135,7 +135,8 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 
 func (r routeRepo) GetAll(ctx context.Context, page int) ([]models.RouteRaw, error) {
 	query := `SELECT r.id FROM routes r
-				LIMIT $1 OFFSET $2`
+					ORDER BY r.id
+					LIMIT $1 OFFSET $2`
 
 	rows, err := r.db.QueryContext(ctx, query, viper.GetInt(config.PlacesOnPage), page)
 	if err != nil {

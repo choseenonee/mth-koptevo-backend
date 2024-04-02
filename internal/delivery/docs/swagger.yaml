@@ -69,6 +69,44 @@ definitions:
         type: number
       properties: {}
     type: object
+  models.Route:
+    properties:
+      city_id:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      places:
+        items:
+          $ref: '#/definitions/models.Place'
+        type: array
+      price:
+        type: integer
+      properties: {}
+      tags:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
+    type: object
+  models.RouteCreate:
+    properties:
+      city_id:
+        type: integer
+      name:
+        type: string
+      place_ids:
+        items:
+          type: integer
+        type: array
+      price:
+        type: integer
+      properties: {}
+      tag_ids:
+        items:
+          type: integer
+        type: array
+    type: object
   models.RouteReview:
     properties:
       author_id:
@@ -487,6 +525,102 @@ paths:
             type: object
       tags:
       - review
+  /route/by_id:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            $ref: '#/definitions/models.Route'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - route
+  /route/by_page:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: query
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            items:
+              $ref: '#/definitions/models.Route'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - route
+  /route/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Route with tag ids and place ids create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.RouteCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created route with id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - route
   /tag/create:
     post:
       consumes:
