@@ -9,4 +9,5 @@ func (e Error) Error() string {
 // USE IN DIFF DIRS OR JUST HERE
 const (
 	UserNotOwner = Error("user is not owner of the place")
+	BadInput     = Error("bad input")
 )

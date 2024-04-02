@@ -16,7 +16,7 @@ type PlaceReviewCreate struct {
 }
 
 type RouteReviewCreate struct {
-	RouteID int `json:"place_id"`
+	RouteID int `json:"route_id"`
 	ReviewBase
 }
 

@@ -14,6 +14,7 @@ const (
 	RowsErr        = "rows error: %v"
 
 	CountErr = "expected to delete 1 record, got %d"
+	BindErr  = "bind properties to json err: %v"
 )
 
 type ErrorPair struct {

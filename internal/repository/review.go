@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
@@ -35,8 +36,13 @@ func (r reviewRepo) create(ctx context.Context, query string, review reviewCreat
 		return 0, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
 	}
 
+	jsonProperties, err := json.Marshal(review.Properties)
+	if err != nil {
+		return 0, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+	}
+
 	var createdID int
-	err = tx.QueryRowxContext(ctx, query, review.EntityID, review.AuthorID, review.Properties).Scan(&createdID)
+	err = tx.QueryRowxContext(ctx, query, review.EntityID, review.AuthorID, jsonProperties).Scan(&createdID)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return 0, customerr.ErrNormalizer(
@@ -73,11 +79,18 @@ func (r reviewRepo) get(ctx context.Context, query string, authorID int, entityI
 	var reviews []reviewGet
 
 	for rows.Next() {
+		var propertiesRaw []byte
 		var review reviewGet
-		err := rows.Scan(&review.ID, &review.EntityID, &review.AuthorID, &review.Properties)
+		err := rows.Scan(&review.ID, &review.EntityID, &review.AuthorID, &propertiesRaw)
 		if err != nil {
 			return []reviewGet{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: nil})
 		}
+
+		err = json.Unmarshal(propertiesRaw, &review.Properties)
+		if err != nil {
+			return []reviewGet{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		}
+
 		reviews = append(reviews, review)
 	}
 
@@ -95,7 +108,12 @@ func (r reviewRepo) update(ctx context.Context, query string, reviewUpd models.R
 		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
 	}
 
-	res, err := tx.ExecContext(ctx, query, reviewUpd.ID, reviewUpd.Properties)
+	jsonProperties, err := json.Marshal(reviewUpd.Properties)
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+	}
+
+	res, err := tx.ExecContext(ctx, query, reviewUpd.ID, jsonProperties)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return customerr.ErrNormalizer(

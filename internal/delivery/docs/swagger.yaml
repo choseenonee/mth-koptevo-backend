@@ -1,4 +1,46 @@
 definitions:
+  models.PlaceReview:
+    properties:
+      author_id:
+        type: integer
+      id:
+        type: integer
+      place_id:
+        type: integer
+      properties: {}
+    type: object
+  models.PlaceReviewCreate:
+    properties:
+      author_id:
+        type: integer
+      place_id:
+        type: integer
+      properties: {}
+    type: object
+  models.ReviewUpdate:
+    properties:
+      id:
+        type: integer
+      properties: {}
+    type: object
+  models.RouteReview:
+    properties:
+      author_id:
+        type: integer
+      id:
+        type: integer
+      place_id:
+        type: integer
+      properties: {}
+    type: object
+  models.RouteReviewCreate:
+    properties:
+      author_id:
+        type: integer
+      place_id:
+        type: integer
+      properties: {}
+    type: object
   models.Tag:
     properties:
       id:
@@ -11,9 +53,245 @@ definitions:
       name:
         type: string
     type: object
+  swagger.GetByAuthor:
+    properties:
+      place_reviews:
+        items:
+          $ref: '#/definitions/models.PlaceReview'
+        type: array
+      route_reviews:
+        items:
+          $ref: '#/definitions/models.RouteReview'
+        type: array
+    type: object
 info:
   contact: {}
 paths:
+  /review/author:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: author id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            $ref: '#/definitions/swagger.GetByAuthor'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+  /review/create_on_place:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: place review create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlaceReviewCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created route review with id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+  /review/create_on_route:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Route review create
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.RouteReviewCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created route review with id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+  /review/place:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: place id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            items:
+              $ref: '#/definitions/models.PlaceReview'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+  /review/route:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: route id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            items:
+              $ref: '#/definitions/models.RouteReview'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+  /review/update_on_place:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: place review id
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReviewUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
+  /review/update_on_route:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: route review id
+        in: body
+        name: review
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReviewUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - review
   /tag/create:
     post:
       consumes:
