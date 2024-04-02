@@ -72,18 +72,23 @@ func (p placeRepo) Create(ctx context.Context, placeCreate models.PlaceCreate) (
 // GetAllWithFilter todo: implement tagIDs and pagination
 func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int) ([]models.Place, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-	queryBuilder := psql.Select("id", "city_id", "district_id", "properties").
+	queryBuilder := psql.Select("places.id", "city_id", "district_id", "properties").
 		From("places")
 
+	if len(tagIDs) > 0 {
+		queryBuilder = queryBuilder.
+			Join("places_tags ON places.id = places_tags.place_id").
+			Join("tags ON places_tags.tag_id = tags.id").
+			Where(squirrel.Eq{"places_tags.tag_id": tagIDs}).
+			GroupBy("places.id", "tags.id").
+			Having("COUNT(DISTINCT places_tags.tag_id) >= ?", len(tagIDs))
+	}
 	if districtID != 0 {
 		queryBuilder = queryBuilder.Where(squirrel.Eq{"district_id": districtID})
 	}
 	if cityID != 0 {
 		queryBuilder = queryBuilder.Where(squirrel.Eq{"city_id": cityID})
 	}
-	//if len(tagIDs) != 0 {
-	//
-	//}
 
 	query, args, err := queryBuilder.ToSql()
 	if err != nil {
