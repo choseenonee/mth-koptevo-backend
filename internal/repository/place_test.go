@@ -14,7 +14,8 @@ func TestPlaceRepo_GetAllWithFilter(t *testing.T) {
 
 	placeRepo := InitPlaceRepo(db)
 
-	places, err := placeRepo.GetAllWithFilter(context.TODO(), 1, 0, []int{}, 0)
+	//places, err := placeRepo.GetAllWithFilter(context.TODO(), 0, 0, []int{}, 0)
+	places, err := placeRepo.GetAllWithFilter(context.TODO(), 100, 1, []int{}, 0)
 	if err != nil {
 		fmt.Println("err ", err)
 	}

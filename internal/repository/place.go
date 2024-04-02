@@ -7,6 +7,8 @@ import (
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
+
+	_ "github.com/lib/pq"
 )
 
 type placeRepo struct {
@@ -69,15 +71,19 @@ func (p placeRepo) Create(ctx context.Context, placeCreate models.PlaceCreate) (
 
 // GetAllWithFilter todo: implement tagIDs and pagination
 func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int) ([]models.Place, error) {
-	queryBuilder := squirrel.Select("id", "city_id", "district_id", "properties").
+	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+	queryBuilder := psql.Select("id", "city_id", "district_id", "properties").
 		From("places")
 
 	if districtID != 0 {
-		queryBuilder.Where(squirrel.Eq{"district_id": districtID})
+		queryBuilder = queryBuilder.Where(squirrel.Eq{"district_id": districtID})
 	}
 	if cityID != 0 {
-		queryBuilder.Where(squirrel.Eq{"city_id": cityID})
+		queryBuilder = queryBuilder.Where(squirrel.Eq{"city_id": cityID})
 	}
+	//if len(tagIDs) != 0 {
+	//
+	//}
 
 	query, args, err := queryBuilder.ToSql()
 	if err != nil {
