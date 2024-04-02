@@ -27,5 +27,5 @@ type Place interface {
 }
 
 type District interface {
-	GetByCityID(ctx context.Context, districtID int) ([]models.District, error)
+	GetByCityID(ctx context.Context, cityID int) ([]models.District, error)
 }

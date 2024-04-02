@@ -26,3 +26,7 @@ type Place interface {
 	GetAllWithFilter(ctx context.Context, filters swagger.Filters) ([]models.Place, error)
 	GetByID(ctx context.Context, placeID int) (models.Place, error)
 }
+
+type District interface {
+	GetByID(ctx context.Context, cityID int) ([]models.District, error)
+}
