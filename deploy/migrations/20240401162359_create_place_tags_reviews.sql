@@ -37,19 +37,23 @@ CREATE TABLE IF NOT EXISTS places_reviews (
     id SERIAL PRIMARY KEY,
     place_id INTEGER,
     author_id INTEGER,
-    properties JSONB
+    properties JSONB,
+    mark real,
+    UNIQUE (author_id, place_id)
 );
 
 CREATE TABLE IF NOT EXISTS route_reviews (
     id SERIAL PRIMARY KEY,
     route_id INTEGER,
     author_id INTEGER,
-    properties JSONB
+    properties JSONB,
+    mark real,
+    UNIQUE (author_id, route_id)
 );
 
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS tags, places, places_tags, reviews, city, district CASCADE
+DROP TABLE IF EXISTS tags, places, places_tags, route_reviews, places_reviews, city, district CASCADE
 -- +goose StatementEnd

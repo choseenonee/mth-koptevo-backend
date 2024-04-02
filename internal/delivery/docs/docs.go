@@ -509,6 +509,9 @@ const docTemplate = `{
                 "district_id": {
                     "type": "integer"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "properties": {},
                 "tag_ids": {
                     "type": "array",
@@ -527,6 +530,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "place_id": {
                     "type": "integer"
                 },
@@ -538,6 +544,9 @@ const docTemplate = `{
             "properties": {
                 "author_id": {
                     "type": "integer"
+                },
+                "mark": {
+                    "type": "number"
                 },
                 "place_id": {
                     "type": "integer"
@@ -551,6 +560,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "properties": {}
             }
         },
@@ -563,6 +575,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "properties": {},
                 "route_id": {
                     "type": "integer"
@@ -574,6 +589,9 @@ const docTemplate = `{
             "properties": {
                 "author_id": {
                     "type": "integer"
+                },
+                "mark": {
+                    "type": "number"
                 },
                 "properties": {},
                 "route_id": {

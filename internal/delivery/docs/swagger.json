@@ -498,6 +498,9 @@
                 "district_id": {
                     "type": "integer"
                 },
+                "name": {
+                    "type": "string"
+                },
                 "properties": {},
                 "tag_ids": {
                     "type": "array",
@@ -516,6 +519,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "place_id": {
                     "type": "integer"
                 },
@@ -527,6 +533,9 @@
             "properties": {
                 "author_id": {
                     "type": "integer"
+                },
+                "mark": {
+                    "type": "number"
                 },
                 "place_id": {
                     "type": "integer"
@@ -540,6 +549,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "properties": {}
             }
         },
@@ -552,6 +564,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "properties": {},
                 "route_id": {
                     "type": "integer"
@@ -563,6 +578,9 @@
             "properties": {
                 "author_id": {
                     "type": "integer"
+                },
+                "mark": {
+                    "type": "number"
                 },
                 "properties": {},
                 "route_id": {
