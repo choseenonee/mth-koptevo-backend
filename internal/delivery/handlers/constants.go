@@ -17,4 +17,8 @@ const (
 	GetAllPlacesWithFilters = "Get all places with filters"
 
 	GetDistrictByCityID = "Get district by city id"
+
+	RouteCreate     = "Create route"
+	GetRouteByID    = "Get route by id"
+	GetRoutesByPage = "Get routes by page"
 )

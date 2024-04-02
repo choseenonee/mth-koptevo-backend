@@ -30,3 +30,9 @@ type Place interface {
 type District interface {
 	GetByID(ctx context.Context, cityID int) ([]models.District, error)
 }
+
+type Route interface {
+	Create(ctx context.Context, route models.RouteCreate) (int, error)
+	GetByID(ctx context.Context, routeID int) (models.Route, error)
+	GetAll(ctx context.Context, page int) ([]models.Route, error)
+}
