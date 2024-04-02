@@ -21,12 +21,6 @@ func RegisterPlaceRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tr
 	placeRouter.POST("/create", placeHandler.Create)
 	placeRouter.GET("/by_id", placeHandler.GetByID)
 	placeRouter.PUT("/get_all_with_filter", placeHandler.GetAllWithFilter)
-	//reviewRouter.POST("/create_on_place", reviewHandler.CreateOnPlace)
-	//reviewRouter.GET("/author", reviewHandler.GetByAuthor)
-	//reviewRouter.GET("/place", reviewHandler.GetByPlace)
-	//reviewRouter.GET("/route", reviewHandler.GetByRoute)
-	//reviewRouter.PUT("/update_on_place", reviewHandler.UpdateOnPlace)
-	//reviewRouter.PUT("/update_on_route", reviewHandler.UpdateOnRoute)
 
 	return placeRouter
 }

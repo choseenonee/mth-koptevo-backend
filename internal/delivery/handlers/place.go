@@ -73,7 +73,7 @@ func (r PlaceHandler) Create(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /place/get_all_with_filter [put]
 func (r PlaceHandler) GetAllWithFilter(c *gin.Context) {
-	ctx, span := r.tracer.Start(c.Request.Context(), PlaceCreate)
+	ctx, span := r.tracer.Start(c.Request.Context(), GetAllPlacesWithFilters)
 	defer span.End()
 
 	var filters swagger.Filters
@@ -111,7 +111,7 @@ func (r PlaceHandler) GetAllWithFilter(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /place/by_id [get]
 func (r PlaceHandler) GetByID(c *gin.Context) {
-	ctx, span := r.tracer.Start(c.Request.Context(), PlaceCreate)
+	ctx, span := r.tracer.Start(c.Request.Context(), GetPlaceById)
 	defer span.End()
 
 	idRaw := c.Query("id")

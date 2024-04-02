@@ -12,5 +12,9 @@ const (
 	UpdateOnPlace     = "Update on place"
 	UpdateOnRoute     = "Update on route"
 
-	PlaceCreate = "Create place"
+	PlaceCreate             = "Create place"
+	GetPlaceById            = "Get place by id"
+	GetAllPlacesWithFilters = "Get all places with filters"
+
+	GetDistrictByCityID = "Get district by city id"
 )
