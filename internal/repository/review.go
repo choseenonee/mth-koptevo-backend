@@ -193,6 +193,7 @@ func (r reviewRepo) GetByAuthor(ctx context.Context, authorID int) ([]models.Pla
 				ReviewBase: models.ReviewBase{
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
+					Mark:       reviews[i].Mark,
 				},
 			},
 		}
@@ -213,6 +214,7 @@ func (r reviewRepo) GetByAuthor(ctx context.Context, authorID int) ([]models.Pla
 				ReviewBase: models.ReviewBase{
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
+					Mark:       reviews[i].Mark,
 				},
 			},
 		}
@@ -237,6 +239,7 @@ func (r reviewRepo) GetByRoute(ctx context.Context, routeID int) ([]models.Route
 				ReviewBase: models.ReviewBase{
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
+					Mark:       reviews[i].Mark,
 				},
 			},
 		}
@@ -261,6 +264,7 @@ func (r reviewRepo) GetByPlace(ctx context.Context, placeID int) ([]models.Place
 				ReviewBase: models.ReviewBase{
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
+					Mark:       reviews[i].Mark,
 				},
 			},
 		}

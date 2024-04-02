@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"mth/internal/models"
+	"mth/internal/models/swagger"
 	"mth/internal/repository"
 	"mth/pkg/log"
 )
@@ -29,8 +30,9 @@ func (p placeService) Create(ctx context.Context, placeCreate models.PlaceCreate
 	return id, nil
 }
 
-func (p placeService) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string) ([]models.Place, error) {
-	places, err := p.placeRepo.GetAllWithFilter(ctx, districtID, cityID, tagIDs, page, name)
+func (p placeService) GetAllWithFilter(ctx context.Context, filters swagger.Filters) ([]models.Place, error) {
+	places, err := p.placeRepo.GetAllWithFilter(ctx, filters.DistrictID, filters.CityID, filters.TagIDs,
+		filters.PaginationPage, filters.Name)
 	if err != nil {
 		p.logger.Error(err.Error())
 		return []models.Place{}, err

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"mth/internal/models"
+	"mth/internal/models/swagger"
 )
 
 type Tag interface {
@@ -22,4 +23,6 @@ type Review interface {
 
 type Place interface {
 	Create(ctx context.Context, placeCreate models.PlaceCreate) (int, error)
+	GetAllWithFilter(ctx context.Context, filters swagger.Filters) ([]models.Place, error)
+	GetByID(ctx context.Context, placeID int) (models.Place, error)
 }

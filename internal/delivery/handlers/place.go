@@ -6,9 +6,11 @@ import (
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 	"mth/internal/models"
+	"mth/internal/models/swagger"
 	"mth/internal/service"
 	tracing "mth/pkg/trace"
 	"net/http"
+	"strconv"
 )
 
 type PlaceHandler struct {
@@ -59,4 +61,80 @@ func (r PlaceHandler) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, id)
+}
+
+// GetAllWithFilter @Summary Get places by filter (or without)
+// @Tags place
+// @Accept  json
+// @Produce  json
+// @Param data body swagger.Filters true "Filters"
+// @Success 200 {object} []models.Place "Successfully"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /place/get_all_with_filter [put]
+func (r PlaceHandler) GetAllWithFilter(c *gin.Context) {
+	ctx, span := r.tracer.Start(c.Request.Context(), PlaceCreate)
+	defer span.End()
+
+	var filters swagger.Filters
+
+	if err := c.ShouldBindJSON(&filters); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	span.AddEvent(tracing.CallToService)
+	places, err := r.PlaceService.GetAllWithFilter(ctx, filters)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.ServiceError, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, places)
+}
+
+// GetByID @Summary Get place by id
+// @Tags place
+// @Accept  json
+// @Produce  json
+// @Param id query int true "Place id"
+// @Success 200 {object} models.Place "Successfully"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /place/by_id [get]
+func (r PlaceHandler) GetByID(c *gin.Context) {
+	ctx, span := r.tracer.Start(c.Request.Context(), PlaceCreate)
+	defer span.End()
+
+	idRaw := c.Query("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	span.AddEvent(tracing.CallToService)
+	place, err := r.PlaceService.GetByID(ctx, id)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.ServiceError, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, place)
 }

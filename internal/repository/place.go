@@ -184,8 +184,8 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 
 func (p placeRepo) GetByID(ctx context.Context, placeID int) (models.Place, error) {
 	query := `SELECT places.id, city_id, district_id, properties, places.name, t.id, t.name FROM places
-				JOIN places_tags pt on places.id = pt.place_id
-				JOIN tags t on pt.tag_id = t.id
+				LEFT JOIN places_tags pt on places.id = pt.place_id
+				LEFT JOIN tags t on pt.tag_id = t.id
 				WHERE places.id = $1;`
 
 	rows, err := p.db.QueryContext(ctx, query, placeID)
@@ -202,6 +202,12 @@ func (p placeRepo) GetByID(ctx context.Context, placeID int) (models.Place, erro
 		if err != nil {
 			return models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
+
+		err = json.Unmarshal(propertiesRow, &place.Properties)
+		if err != nil {
+			return models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		}
+
 		if tagName.Valid {
 			var tag models.Tag
 			tag.ID = int(tagID.Int64)

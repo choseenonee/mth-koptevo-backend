@@ -19,6 +19,8 @@ func RegisterPlaceRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tr
 	placeHandler := handlers.InitPlaceHandler(placeService, tracer)
 
 	placeRouter.POST("/create", placeHandler.Create)
+	placeRouter.GET("/by_id", placeHandler.GetByID)
+	placeRouter.PUT("/get_all_with_filter", placeHandler.GetAllWithFilter)
 	//reviewRouter.POST("/create_on_place", reviewHandler.CreateOnPlace)
 	//reviewRouter.GET("/author", reviewHandler.GetByAuthor)
 	//reviewRouter.GET("/place", reviewHandler.GetByPlace)
