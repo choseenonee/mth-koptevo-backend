@@ -209,7 +209,7 @@ func (r ReviewHandler) GetByRoute(c *gin.Context) {
 	}
 
 	span.AddEvent(tracing.CallToService)
-	placeReviews, err := r.ReviewService.GetByPlace(ctx, placeID)
+	placeReviews, err := r.ReviewService.GetByRoute(ctx, placeID)
 	if err != nil {
 		span.RecordError(err, trace.WithAttributes(
 			attribute.String(tracing.ServiceError, err.Error())),

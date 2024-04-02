@@ -15,6 +15,157 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/place/by_id": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "place"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Place id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.Place"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/place/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "place"
+                ],
+                "parameters": [
+                    {
+                        "description": "Place with tag ids create",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.PlaceCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created place with id",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/place/get_all_with_filter": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "place"
+                ],
+                "parameters": [
+                    {
+                        "description": "Filters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/swagger.Filters"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Place"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/review/author": {
             "get": {
                 "consumes": [
@@ -450,6 +601,51 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.Place": {
+            "type": "object",
+            "properties": {
+                "city_id": {
+                    "type": "integer"
+                },
+                "district_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {},
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Tag"
+                    }
+                }
+            }
+        },
+        "models.PlaceCreate": {
+            "type": "object",
+            "properties": {
+                "city_id": {
+                    "type": "integer"
+                },
+                "district_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "properties": {},
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "models.PlaceReview": {
             "type": "object",
             "properties": {
@@ -458,6 +654,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "mark": {
+                    "type": "number"
                 },
                 "place_id": {
                     "type": "integer"
@@ -471,6 +670,9 @@ const docTemplate = `{
                 "author_id": {
                     "type": "integer"
                 },
+                "mark": {
+                    "type": "number"
+                },
                 "place_id": {
                     "type": "integer"
                 },
@@ -482,6 +684,9 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                },
+                "mark": {
+                    "type": "number"
                 },
                 "properties": {}
             }
@@ -495,10 +700,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "place_id": {
-                    "type": "integer"
+                "mark": {
+                    "type": "number"
                 },
-                "properties": {}
+                "properties": {},
+                "route_id": {
+                    "type": "integer"
+                }
             }
         },
         "models.RouteReviewCreate": {
@@ -507,10 +715,13 @@ const docTemplate = `{
                 "author_id": {
                     "type": "integer"
                 },
-                "place_id": {
-                    "type": "integer"
+                "mark": {
+                    "type": "number"
                 },
-                "properties": {}
+                "properties": {},
+                "route_id": {
+                    "type": "integer"
+                }
             }
         },
         "models.Tag": {
@@ -529,6 +740,29 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "swagger.Filters": {
+            "type": "object",
+            "properties": {
+                "city_id": {
+                    "type": "integer"
+                },
+                "district_id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "pagination_page": {
+                    "type": "integer"
+                },
+                "tag_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
