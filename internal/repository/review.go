@@ -135,7 +135,7 @@ func (r reviewRepo) update(ctx context.Context, query string, reviewUpd models.R
 	return nil
 }
 
-func (r reviewRepo) CreateRoute(ctx context.Context, routeReview models.RouteReviewCreate) (int, error) {
+func (r reviewRepo) CreateOnRoute(ctx context.Context, routeReview models.RouteReviewCreate) (int, error) {
 	createRouteReviewQuery := `INSERT INTO route_reviews (route_id, author_id, properties) VALUES ($1, $2, $3) RETURNING id`
 	review := reviewCreate{
 		AuthorID:   routeReview.AuthorID,
@@ -145,7 +145,7 @@ func (r reviewRepo) CreateRoute(ctx context.Context, routeReview models.RouteRev
 	return r.create(ctx, createRouteReviewQuery, review)
 }
 
-func (r reviewRepo) CreatePlace(ctx context.Context, placeReview models.PlaceReviewCreate) (int, error) {
+func (r reviewRepo) CreateOnPlace(ctx context.Context, placeReview models.PlaceReviewCreate) (int, error) {
 	createRouteReviewQuery := `INSERT INTO places_reviews (place_id, author_id, properties) VALUES ($1, $2, $3) RETURNING id;`
 	review := reviewCreate{
 		AuthorID:   placeReview.AuthorID,
@@ -247,12 +247,12 @@ func (r reviewRepo) GetByPlace(ctx context.Context, placeID int) ([]models.Place
 	return placeReviews, nil
 }
 
-func (r reviewRepo) UpdatePlace(ctx context.Context, reviewUpd models.ReviewUpdate) error {
+func (r reviewRepo) UpdateOnPlace(ctx context.Context, reviewUpd models.ReviewUpdate) error {
 	updatePlaceReviewQuery := `UPDATE places_reviews SET properties = $2 WHERE id = $1;`
 	return r.update(ctx, updatePlaceReviewQuery, reviewUpd)
 }
 
-func (r reviewRepo) UpdateRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error {
+func (r reviewRepo) UpdateOnRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error {
 	updateRouteReviewQuery := `UPDATE route_reviews SET properties = $2 WHERE id = $1;`
 	return r.update(ctx, updateRouteReviewQuery, reviewUpd)
 }

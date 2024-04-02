@@ -19,8 +19,8 @@ func InitReviewService(reviewRepo repository.Review, logger *log.Logs) Review {
 	}
 }
 
-func (r reviewService) CreateRoute(ctx context.Context, routeReview models.RouteReviewCreate) (int, error) {
-	id, err := r.reviewRepo.CreateRoute(ctx, routeReview)
+func (r reviewService) CreateOnRoute(ctx context.Context, routeReview models.RouteReviewCreate) (int, error) {
+	id, err := r.reviewRepo.CreateOnRoute(ctx, routeReview)
 	if err != nil {
 		r.logger.Error(err.Error())
 		return 0, err
@@ -29,8 +29,8 @@ func (r reviewService) CreateRoute(ctx context.Context, routeReview models.Route
 	return id, nil
 }
 
-func (r reviewService) CreatePlace(ctx context.Context, placeReview models.PlaceReviewCreate) (int, error) {
-	id, err := r.reviewRepo.CreatePlace(ctx, placeReview)
+func (r reviewService) CreateOnPlace(ctx context.Context, placeReview models.PlaceReviewCreate) (int, error) {
+	id, err := r.reviewRepo.CreateOnPlace(ctx, placeReview)
 	if err != nil {
 		r.logger.Error(err.Error())
 		return 0, err
@@ -69,8 +69,8 @@ func (r reviewService) GetByPlace(ctx context.Context, placeID int) ([]models.Pl
 	return placeReviews, nil
 }
 
-func (r reviewService) UpdatePlace(ctx context.Context, reviewUpd models.ReviewUpdate) error {
-	err := r.reviewRepo.UpdatePlace(ctx, reviewUpd)
+func (r reviewService) UpdateOnPlace(ctx context.Context, reviewUpd models.ReviewUpdate) error {
+	err := r.reviewRepo.UpdateOnPlace(ctx, reviewUpd)
 	if err != nil {
 		r.logger.Error(err.Error())
 		return err
@@ -79,8 +79,8 @@ func (r reviewService) UpdatePlace(ctx context.Context, reviewUpd models.ReviewU
 	return nil
 }
 
-func (r reviewService) UpdateRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error {
-	err := r.reviewRepo.UpdateRoute(ctx, reviewUpd)
+func (r reviewService) UpdateOnRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error {
+	err := r.reviewRepo.UpdateOnRoute(ctx, reviewUpd)
 	if err != nil {
 		r.logger.Error(err.Error())
 		return err
