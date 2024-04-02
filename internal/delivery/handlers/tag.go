@@ -69,7 +69,7 @@ func (t TagHandler) Create(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /tag/get_all [get]
 func (t TagHandler) GetAll(c *gin.Context) {
-	ctx, span := t.tracer.Start(c.Request.Context(), CreateTag)
+	ctx, span := t.tracer.Start(c.Request.Context(), GetAllTags)
 	defer span.End()
 
 	span.AddEvent(tracing.CallToService)

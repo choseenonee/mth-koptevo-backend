@@ -9,4 +9,5 @@ import (
 
 func InitRouting(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer trace.Tracer) {
 	_ = RegisterTagRouter(r, db, logger, tracer)
+	_ = RegisterReviewRouter(r, db, logger, tracer)
 }
