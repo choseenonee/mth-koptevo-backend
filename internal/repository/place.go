@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
+	"github.com/spf13/viper"
 	"mth/internal/models"
+	"mth/pkg/config"
 	"mth/pkg/customerr"
 
 	_ "github.com/lib/pq"
@@ -89,6 +91,9 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 	if cityID != 0 {
 		queryBuilder = queryBuilder.Where(squirrel.Eq{"city_id": cityID})
 	}
+
+	// OFFSET с 0 нада бээмс
+	queryBuilder = queryBuilder.Limit(uint64(viper.GetInt(config.PlacesOnPage))).Offset(uint64(page))
 
 	query, args, err := queryBuilder.ToSql()
 	if err != nil {
