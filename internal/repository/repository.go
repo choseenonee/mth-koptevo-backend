@@ -19,3 +19,11 @@ type Review interface {
 	UpdateOnPlace(ctx context.Context, reviewUpd models.ReviewUpdate) error
 	UpdateOnRoute(ctx context.Context, reviewUpd models.ReviewUpdate) error
 }
+
+type Districts interface {
+	GetByCity(ctx context.Context, cityID int) ([]models.District, error)
+}
+
+type Routes interface {
+	Create(ctx context.Context, route models.RouteCreate) (int, error)
+}
