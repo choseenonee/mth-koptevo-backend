@@ -58,6 +58,32 @@ func (r routeService) GetByID(ctx context.Context, routeID int) (models.Route, e
 }
 
 func (r routeService) GetAll(ctx context.Context, page int) ([]models.Route, error) {
-	//TODO implement me
-	panic("implement me")
+	routesRaw, err := r.routeRepo.GetAll(ctx, page)
+	if err != nil {
+		r.logger.Error(err.Error())
+		return []models.Route{}, err
+	}
+
+	routes := make([]models.Route, 0, len(routesRaw))
+	for _, routeRaw := range routesRaw {
+		var route models.Route
+
+		route.RouteBase = routeRaw.RouteBase
+		route.ID = routeRaw.ID
+		route.Tags = routeRaw.Tags
+
+		for _, placeID := range routeRaw.PlaceIDs {
+			place, err := r.placeRepo.GetByID(ctx, placeID)
+			if err != nil {
+				r.logger.Error(err.Error())
+				return []models.Route{}, err
+			}
+
+			route.Places = append(route.Places, place)
+		}
+
+		routes = append(routes, route)
+	}
+
+	return routes, nil
 }

@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"github.com/guregu/null/v5"
 	"github.com/jmoiron/sqlx"
+	"github.com/spf13/viper"
 	"mth/internal/models"
+	"mth/pkg/config"
 	"mth/pkg/customerr"
 )
 
@@ -85,7 +87,7 @@ func (r routeRepo) Create(ctx context.Context, route models.RouteCreate) (int, e
 }
 
 func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, error) {
-	query := `SELECT r.id, r.city_id, r.price, r.name, r.properties, t.id, t.name  FROM routes r
+	query := `SELECT r.id, r.city_id, r.price, r.name, r.properties, t.id, t.name, rp.place_id  FROM routes r
 				LEFT JOIN routes_places rp on r.id = rp.route_id
     			LEFT JOIN routes_tags rt on r.id = rt.route_id
 				LEFT JOIN tags t on rt.tag_id = t.id
@@ -100,8 +102,9 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 	var propertiesRow []byte
 	var tagID null.Int
 	var tagName null.String
+	var placeID null.Int
 	for rows.Next() {
-		err = rows.Scan(&route.ID, &route.CityID, &route.Price, &route.Name, &propertiesRow, &tagID, &tagName)
+		err = rows.Scan(&route.ID, &route.CityID, &route.Price, &route.Name, &propertiesRow, &tagID, &tagName, &placeID)
 		if err != nil {
 			return models.RouteRaw{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
@@ -117,6 +120,9 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 			tag.Name = tagName.String
 			route.Tags = append(route.Tags, tag)
 		}
+		if placeID.Valid {
+			route.PlaceIDs = append(route.PlaceIDs, int(placeID.Int64))
+		}
 	}
 
 	err = rows.Err()
@@ -128,6 +134,39 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 }
 
 func (r routeRepo) GetAll(ctx context.Context, page int) ([]models.RouteRaw, error) {
-	//TODO implement me
-	panic("implement me")
+	query := `SELECT r.id FROM routes r
+				LIMIT $1 OFFSET $2`
+
+	rows, err := r.db.QueryContext(ctx, query, viper.GetInt(config.PlacesOnPage), page)
+	if err != nil {
+		return []models.RouteRaw{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	var routeIDs []int
+	for rows.Next() {
+		var routeID null.Int
+
+		err = rows.Scan(&routeID)
+		if err != nil {
+			return []models.RouteRaw{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		if routeID.Valid {
+			routeIDs = append(routeIDs, int(routeID.Int64))
+		}
+	}
+
+	var routes []models.RouteRaw
+	if len(routeIDs) > 0 {
+		for _, routeID := range routeIDs {
+			route, err := r.GetByID(ctx, routeID)
+			if err != nil {
+				return []models.RouteRaw{}, err
+			}
+
+			routes = append(routes, route)
+		}
+	}
+
+	return routes, nil
 }
