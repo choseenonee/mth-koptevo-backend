@@ -15,6 +15,8 @@ const (
 
 	CountErr = "expected to delete 1 record, got %d"
 	BindErr  = "bind properties to json err: %v"
+
+	QueryBuild = "query build err: %v"
 )
 
 type ErrorPair struct {

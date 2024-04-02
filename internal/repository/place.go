@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
@@ -66,9 +67,53 @@ func (p placeRepo) Create(ctx context.Context, placeCreate models.PlaceCreate) (
 	return createdID, nil
 }
 
+// GetAllWithFilter todo: implement tagIDs and pagination
 func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int) ([]models.Place, error) {
-	//TODO implement me
-	panic("implement me")
+	queryBuilder := squirrel.Select("id", "city_id", "district_id", "properties").
+		From("places")
+
+	if districtID != 0 {
+		queryBuilder.Where(squirrel.Eq{"district_id": districtID})
+	}
+	if cityID != 0 {
+		queryBuilder.Where(squirrel.Eq{"city_id": cityID})
+	}
+
+	query, args, err := queryBuilder.ToSql()
+	if err != nil {
+		return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.QueryBuild, Err: err})
+	}
+
+	rows, err := p.db.QueryContext(ctx, query, args...)
+	if err != nil {
+		return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	var places []models.Place
+
+	for rows.Next() {
+		var place models.Place
+		var propertiesRaw []byte
+
+		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRaw)
+		if err != nil {
+			return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		err = json.Unmarshal(propertiesRaw, &place.Properties)
+		if err != nil {
+			return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		}
+
+		places = append(places, place)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.RowsErr, Err: err})
+	}
+
+	return places, nil
 }
 
 func (p placeRepo) GetByID(ctx context.Context, placeID int) {
