@@ -19,7 +19,7 @@ func InitDistrictRepo(db *sqlx.DB) District {
 }
 
 func (d districtRepo) GetByCityID(ctx context.Context, cityID int) ([]models.District, error) {
-	query := `SELECT id, name, city_id, properties FROM district WHERE id = $1;`
+	query := `SELECT id, name, city_id, properties FROM district WHERE city_id = $1;`
 
 	rows, err := d.db.QueryContext(ctx, query, cityID)
 	if err != nil {
