@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Masterminds/squirrel"
+	"github.com/guregu/null/v5"
 	"github.com/jmoiron/sqlx"
 	"github.com/spf13/viper"
 	"mth/internal/models"
@@ -181,6 +182,38 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 	return places, nil
 }
 
-func (p placeRepo) GetByID(ctx context.Context, placeID int) {
+func (p placeRepo) GetByID(ctx context.Context, placeID int) (models.Place, error) {
+	query := `SELECT places.id, city_id, district_id, properties, places.name, t.id, t.name FROM places
+				JOIN places_tags pt on places.id = pt.place_id
+				JOIN tags t on pt.tag_id = t.id
+				WHERE places.id = $1;`
 
+	rows, err := p.db.QueryContext(ctx, query, placeID)
+	if err != nil {
+		return models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	var place models.Place
+	var propertiesRow []byte
+	var tagID null.Int
+	var tagName null.String
+	for rows.Next() {
+		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRow, &place.Name, &tagID, &tagName)
+		if err != nil {
+			return models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+		if tagName.Valid {
+			var tag models.Tag
+			tag.ID = int(tagID.Int64)
+			tag.Name = tagName.String
+			place.Tags = append(place.Tags, tag)
+		}
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.RowsErr, Err: err})
+	}
+
+	return place, nil
 }

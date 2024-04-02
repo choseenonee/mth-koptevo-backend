@@ -28,3 +28,23 @@ func (p placeService) Create(ctx context.Context, placeCreate models.PlaceCreate
 
 	return id, nil
 }
+
+func (p placeService) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string) ([]models.Place, error) {
+	places, err := p.placeRepo.GetAllWithFilter(ctx, districtID, cityID, tagIDs, page, name)
+	if err != nil {
+		p.logger.Error(err.Error())
+		return []models.Place{}, err
+	}
+
+	return places, nil
+}
+
+func (p placeService) GetByID(ctx context.Context, placeID int) (models.Place, error) {
+	place, err := p.placeRepo.GetByID(ctx, placeID)
+	if err != nil {
+		p.logger.Error(err.Error())
+		return models.Place{}, err
+	}
+
+	return place, nil
+}

@@ -23,5 +23,5 @@ type Review interface {
 type Place interface {
 	Create(ctx context.Context, placeCreate models.PlaceCreate) (int, error)
 	GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string) ([]models.Place, error)
-	GetByID(ctx context.Context, placeID int)
+	GetByID(ctx context.Context, placeID int) (models.Place, error)
 }
