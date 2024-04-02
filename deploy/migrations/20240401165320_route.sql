@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS routes (
     id SERIAL PRIMARY KEY,
     city_id INTEGER REFERENCES city(id),
     price INTEGER,
+    name VARCHAR UNIQUE,
     properties JSONB
 );
 

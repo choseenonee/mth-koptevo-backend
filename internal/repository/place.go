@@ -34,10 +34,11 @@ func (p placeRepo) Create(ctx context.Context, placeCreate models.PlaceCreate) (
 		return 0, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 	}
 
-	createPlaceQuery := `INSERT INTO places (city_id, district_id, properties) VALUES ($1, $2, $3) RETURNING id;`
+	createPlaceQuery := `INSERT INTO places (city_id, district_id, properties, name) VALUES ($1, $2, $3, $4) RETURNING id;`
 
 	var createdID int
-	err = tx.QueryRowxContext(ctx, createPlaceQuery, placeCreate.CityID, placeCreate.DistrictID, jsonProperties).Scan(&createdID)
+	err = tx.QueryRowxContext(ctx, createPlaceQuery, placeCreate.CityID, placeCreate.DistrictID, jsonProperties, placeCreate.Name).
+		Scan(&createdID)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return 0, customerr.ErrNormalizer(
@@ -72,9 +73,9 @@ func (p placeRepo) Create(ctx context.Context, placeCreate models.PlaceCreate) (
 }
 
 // GetAllWithFilter todo: implement tagIDs and pagination
-func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int) ([]models.Place, error) {
+func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string) ([]models.Place, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-	queryBuilder := psql.Select("places.id", "city_id", "district_id", "properties").
+	queryBuilder := psql.Select("places.id", "city_id", "district_id", "properties", "places.name").
 		From("places")
 
 	if len(tagIDs) > 0 {
@@ -90,6 +91,9 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 	}
 	if cityID != 0 {
 		queryBuilder = queryBuilder.Where(squirrel.Eq{"city_id": cityID})
+	}
+	if name != "" {
+		queryBuilder = queryBuilder.Where(squirrel.Like{"places.name": "%" + name + "%"})
 	}
 
 	// OFFSET с 0 нада бээмс
@@ -111,7 +115,7 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 		var place models.Place
 		var propertiesRaw []byte
 
-		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRaw)
+		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRaw, &place.Name)
 		if err != nil {
 			return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
@@ -133,6 +137,5 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 }
 
 func (p placeRepo) GetByID(ctx context.Context, placeID int) {
-	//TODO implement me
-	panic("implement me")
+
 }

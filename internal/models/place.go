@@ -4,6 +4,7 @@ type PlaceBase struct {
 	Properties interface{} `json:"properties"`
 	CityID     int         `json:"city_id"`
 	DistrictID int         `json:"district_id"`
+	Name       string      `json:"name"`
 }
 
 type PlaceCreate struct {

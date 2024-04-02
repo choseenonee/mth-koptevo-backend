@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS places (
     id SERIAL PRIMARY KEY,
     city_id INTEGER REFERENCES city(id),
     district_id INTEGER,
-    properties JSONB
+    properties JSONB,
+    name VARCHAR UNIQUE
 );
 
 CREATE TABLE places_tags (
