@@ -25,3 +25,7 @@ type Place interface {
 	GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string) ([]models.Place, error)
 	GetByID(ctx context.Context, placeID int) (models.Place, error)
 }
+
+type District interface {
+	GetByCityID(ctx context.Context, cityID int) ([]models.District, error)
+}
