@@ -826,6 +826,9 @@
                     "items": {
                         "$ref": "#/definitions/models.Tag"
                     }
+                },
+                "variety": {
+                    "type": "string"
                 }
             }
         },
@@ -847,6 +850,9 @@
                     "items": {
                         "type": "integer"
                     }
+                },
+                "variety": {
+                    "type": "string"
                 }
             }
         },
@@ -1046,6 +1052,9 @@
                     "items": {
                         "type": "integer"
                     }
+                },
+                "variety": {
+                    "type": "string"
                 }
             }
         },

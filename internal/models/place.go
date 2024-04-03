@@ -5,6 +5,7 @@ type PlaceBase struct {
 	CityID     int         `json:"city_id"`
 	DistrictID int         `json:"district_id"`
 	Name       string      `json:"name"`
+	Variety    string      `json:"variety"`
 }
 
 type PlaceCreate struct {

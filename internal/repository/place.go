@@ -37,11 +37,11 @@ func (p placeRepo) Create(ctx context.Context, placeCreate models.PlaceCreate) (
 		return 0, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 	}
 
-	createPlaceQuery := `INSERT INTO places (city_id, district_id, properties, name) VALUES ($1, $2, $3, $4) RETURNING id;`
+	createPlaceQuery := `INSERT INTO places (city_id, district_id, properties, name, variety) VALUES ($1, $2, $3, $4, $5) RETURNING id;`
 
 	var createdID int
-	err = tx.QueryRowxContext(ctx, createPlaceQuery, placeCreate.CityID, placeCreate.DistrictID, jsonProperties, placeCreate.Name).
-		Scan(&createdID)
+	err = tx.QueryRowxContext(ctx, createPlaceQuery, placeCreate.CityID, placeCreate.DistrictID, jsonProperties,
+		placeCreate.Name, placeCreate.Variety).Scan(&createdID)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return 0, customerr.ErrNormalizer(
@@ -108,9 +108,9 @@ func (p placeRepo) getPlaceTags(ctx context.Context, place *models.Place) error 
 }
 
 // GetAllWithFilter todo: implement tagIDs and pagination
-func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string) ([]models.Place, error) {
+func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID int, tagIDs []int, page int, name string, variety string) ([]models.Place, error) {
 	psql := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
-	queryBuilder := psql.Select("places.id", "city_id", "district_id", "properties", "places.name").
+	queryBuilder := psql.Select("places.id", "city_id", "district_id", "properties", "places.name", "places.variety").
 		From("places")
 
 	if len(tagIDs) > 0 {
@@ -129,6 +129,9 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 	}
 	if name != "" {
 		queryBuilder = queryBuilder.Where(squirrel.Like{"places.name": "%" + name + "%"})
+	}
+	if variety != "" {
+		queryBuilder = queryBuilder.Where(squirrel.Eq{"places.variety": variety})
 	}
 
 	// OFFSET с 0 нада бээмс
@@ -150,7 +153,7 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 		var place models.Place
 		var propertiesRaw []byte
 
-		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRaw, &place.Name)
+		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRaw, &place.Name, &place.Variety)
 		if err != nil {
 			return []models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
@@ -183,7 +186,7 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 }
 
 func (p placeRepo) GetByID(ctx context.Context, placeID int) (models.Place, error) {
-	query := `SELECT places.id, city_id, district_id, properties, places.name, t.id, t.name FROM places
+	query := `SELECT places.id, city_id, district_id, properties, places.name, variety, t.id, t.name FROM places
 				LEFT JOIN places_tags pt on places.id = pt.place_id
 				LEFT JOIN tags t on pt.tag_id = t.id
 				WHERE places.id = $1;`
@@ -198,7 +201,7 @@ func (p placeRepo) GetByID(ctx context.Context, placeID int) (models.Place, erro
 	var tagID null.Int
 	var tagName null.String
 	for rows.Next() {
-		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRow, &place.Name, &tagID, &tagName)
+		err = rows.Scan(&place.ID, &place.CityID, &place.DistrictID, &propertiesRow, &place.Name, &place.Variety, &tagID, &tagName)
 		if err != nil {
 			return models.Place{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}

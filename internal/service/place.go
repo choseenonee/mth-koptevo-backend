@@ -32,7 +32,7 @@ func (p placeService) Create(ctx context.Context, placeCreate models.PlaceCreate
 
 func (p placeService) GetAllWithFilter(ctx context.Context, filters swagger.Filters) ([]models.Place, error) {
 	places, err := p.placeRepo.GetAllWithFilter(ctx, filters.DistrictID, filters.CityID, filters.TagIDs,
-		filters.PaginationPage, filters.Name)
+		filters.PaginationPage, filters.Name, filters.Variety)
 	if err != nil {
 		p.logger.Error(err.Error())
 		return []models.Place{}, err

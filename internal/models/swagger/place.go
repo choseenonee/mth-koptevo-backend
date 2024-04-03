@@ -6,4 +6,5 @@ type Filters struct {
 	TagIDs         []int  `json:"tag_ids,omitempty"`
 	PaginationPage int    `json:"pagination_page"`
 	Name           string `json:"name,omitempty"`
+	Variety        string `json:"variety"`
 }

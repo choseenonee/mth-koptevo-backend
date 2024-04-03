@@ -837,6 +837,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.Tag"
                     }
+                },
+                "variety": {
+                    "type": "string"
                 }
             }
         },
@@ -858,6 +861,9 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "variety": {
+                    "type": "string"
                 }
             }
         },
@@ -1057,6 +1063,9 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                },
+                "variety": {
+                    "type": "string"
                 }
             }
         },

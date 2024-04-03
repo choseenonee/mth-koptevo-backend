@@ -24,6 +24,8 @@ definitions:
         items:
           $ref: '#/definitions/models.Tag'
         type: array
+      variety:
+        type: string
     type: object
   models.PlaceCreate:
     properties:
@@ -38,6 +40,8 @@ definitions:
         items:
           type: integer
         type: array
+      variety:
+        type: string
     type: object
   models.PlaceIDWithPosition:
     properties:
@@ -169,6 +173,8 @@ definitions:
         items:
           type: integer
         type: array
+      variety:
+        type: string
     type: object
   swagger.GetByAuthor:
     properties:
