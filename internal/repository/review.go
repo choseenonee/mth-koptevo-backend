@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
+	"time"
 )
 
 type reviewRepo struct {
@@ -24,6 +25,7 @@ type reviewCreate struct {
 	EntityID   int
 	Properties interface{}
 	Mark       float32
+	TimeStamp  time.Time
 	_          struct{}
 }
 
@@ -83,7 +85,7 @@ func (r reviewRepo) get(ctx context.Context, query string, authorID int, entityI
 	for rows.Next() {
 		var propertiesRaw []byte
 		var review reviewGet
-		err := rows.Scan(&review.ID, &review.EntityID, &review.AuthorID, &propertiesRaw, &review.Mark)
+		err := rows.Scan(&review.ID, &review.EntityID, &review.AuthorID, &propertiesRaw, &review.Mark, &review.TimeStamp)
 		if err != nil {
 			return []reviewGet{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: nil})
 		}
@@ -156,7 +158,7 @@ func (r reviewRepo) update(ctx context.Context, query string, reviewUpd models.R
 }
 
 func (r reviewRepo) CreateOnRoute(ctx context.Context, routeReview models.RouteReviewCreate) (int, error) {
-	createRouteReviewQuery := `INSERT INTO route_reviews (route_id, author_id, properties, mark) VALUES ($1, $2, $3, $4) RETURNING id`
+	createRouteReviewQuery := `INSERT INTO route_reviews (route_id, author_id, properties, mark, timestamp) VALUES ($1, $2, $3, $4, current_timestamp) RETURNING id`
 	review := reviewCreate{
 		AuthorID:   routeReview.AuthorID,
 		EntityID:   routeReview.RouteID,
@@ -167,7 +169,7 @@ func (r reviewRepo) CreateOnRoute(ctx context.Context, routeReview models.RouteR
 }
 
 func (r reviewRepo) CreateOnPlace(ctx context.Context, placeReview models.PlaceReviewCreate) (int, error) {
-	createRouteReviewQuery := `INSERT INTO places_reviews (place_id, author_id, properties, mark) VALUES ($1, $2, $3, $4) RETURNING id;`
+	createRouteReviewQuery := `INSERT INTO places_reviews (place_id, author_id, properties, mark, timestamp) VALUES ($1, $2, $3, $4, current_timestamp) RETURNING id;`
 	review := reviewCreate{
 		AuthorID:   placeReview.AuthorID,
 		EntityID:   placeReview.PlaceID,
@@ -178,7 +180,7 @@ func (r reviewRepo) CreateOnPlace(ctx context.Context, placeReview models.PlaceR
 }
 
 func (r reviewRepo) GetByAuthor(ctx context.Context, authorID int) ([]models.PlaceReview, []models.RouteReview, error) {
-	getRouteReviewByUser := `SELECT id, route_id, author_id, properties, mark FROM route_reviews WHERE author_id = $1;`
+	getRouteReviewByUser := `SELECT id, route_id, author_id, properties, mark, timestamp FROM route_reviews WHERE author_id = $1;`
 	reviews, err := r.get(ctx, getRouteReviewByUser, authorID, 0)
 	if err != nil {
 		return []models.PlaceReview{}, []models.RouteReview{}, err
@@ -194,12 +196,13 @@ func (r reviewRepo) GetByAuthor(ctx context.Context, authorID int) ([]models.Pla
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
 					Mark:       reviews[i].Mark,
+					TimeStamp:  reviews[i].TimeStamp,
 				},
 			},
 		}
 	}
 
-	getPlaceReviewsByAuthorQuery := `SELECT id, place_id, author_id, properties, mark FROM places_reviews WHERE author_id = $1;`
+	getPlaceReviewsByAuthorQuery := `SELECT id, place_id, author_id, properties, mark, timestamp FROM places_reviews WHERE author_id = $1;`
 	reviews, err = r.get(ctx, getPlaceReviewsByAuthorQuery, authorID, 0)
 	if err != nil {
 		return []models.PlaceReview{}, []models.RouteReview{}, err
@@ -215,6 +218,7 @@ func (r reviewRepo) GetByAuthor(ctx context.Context, authorID int) ([]models.Pla
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
 					Mark:       reviews[i].Mark,
+					TimeStamp:  reviews[i].TimeStamp,
 				},
 			},
 		}
@@ -224,7 +228,7 @@ func (r reviewRepo) GetByAuthor(ctx context.Context, authorID int) ([]models.Pla
 }
 
 func (r reviewRepo) GetByRoute(ctx context.Context, routeID int) ([]models.RouteReview, error) {
-	getByRouteQuery := `SELECT id, route_id, author_id, properties, mark FROM route_reviews WHERE route_id = $1;`
+	getByRouteQuery := `SELECT id, route_id, author_id, properties, mark, timestamp FROM route_reviews WHERE route_id = $1;`
 	reviews, err := r.get(ctx, getByRouteQuery, 0, routeID)
 	if err != nil {
 		return []models.RouteReview{}, err
@@ -240,6 +244,7 @@ func (r reviewRepo) GetByRoute(ctx context.Context, routeID int) ([]models.Route
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
 					Mark:       reviews[i].Mark,
+					TimeStamp:  reviews[i].TimeStamp,
 				},
 			},
 		}
@@ -249,7 +254,7 @@ func (r reviewRepo) GetByRoute(ctx context.Context, routeID int) ([]models.Route
 }
 
 func (r reviewRepo) GetByPlace(ctx context.Context, placeID int) ([]models.PlaceReview, error) {
-	getByPlaceQuery := `SELECT id, place_id, author_id, properties, mark FROM places_reviews WHERE place_id = $1;`
+	getByPlaceQuery := `SELECT id, place_id, author_id, properties, mark, timestamp FROM places_reviews WHERE place_id = $1;`
 	reviews, err := r.get(ctx, getByPlaceQuery, 0, placeID)
 	if err != nil {
 		return []models.PlaceReview{}, err
@@ -265,6 +270,7 @@ func (r reviewRepo) GetByPlace(ctx context.Context, placeID int) ([]models.Place
 					AuthorID:   reviews[i].AuthorID,
 					Properties: reviews[i].Properties,
 					Mark:       reviews[i].Mark,
+					TimeStamp:  reviews[i].TimeStamp,
 				},
 			},
 		}

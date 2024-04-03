@@ -1,9 +1,12 @@
 package models
 
+import "time"
+
 type ReviewBase struct {
 	AuthorID   int         `json:"author_id"`
 	Properties interface{} `json:"properties"`
 	Mark       float32     `json:"mark"`
+	TimeStamp  time.Time
 }
 
 type ReviewUpdate struct {
