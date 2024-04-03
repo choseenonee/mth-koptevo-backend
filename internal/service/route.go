@@ -44,14 +44,19 @@ func (r routeService) GetByID(ctx context.Context, routeID int) (models.Route, e
 	route.ID = routeRaw.ID
 	route.Tags = routeRaw.Tags
 
-	for _, placeID := range routeRaw.PlaceIDs {
-		place, err := r.placeRepo.GetByID(ctx, placeID)
+	for _, placeIDWithPosition := range routeRaw.PlaceIDsWithPosition {
+		place, err := r.placeRepo.GetByID(ctx, placeIDWithPosition.PlaceID)
 		if err != nil {
 			r.logger.Error(err.Error())
 			return models.Route{}, err
 		}
 
-		route.Places = append(route.Places, place)
+		placeWithPosition := models.PlaceWithPosition{
+			Place:    place,
+			Position: placeIDWithPosition.Position,
+		}
+
+		route.Places = append(route.Places, placeWithPosition)
 	}
 
 	return route, nil
@@ -72,14 +77,19 @@ func (r routeService) GetAll(ctx context.Context, page int) ([]models.Route, err
 		route.ID = routeRaw.ID
 		route.Tags = routeRaw.Tags
 
-		for _, placeID := range routeRaw.PlaceIDs {
-			place, err := r.placeRepo.GetByID(ctx, placeID)
+		for _, placeIDWithPosition := range routeRaw.PlaceIDsWithPosition {
+			place, err := r.placeRepo.GetByID(ctx, placeIDWithPosition.PlaceID)
 			if err != nil {
 				r.logger.Error(err.Error())
 				return []models.Route{}, err
 			}
 
-			route.Places = append(route.Places, place)
+			placeWithPosition := models.PlaceWithPosition{
+				Place:    place,
+				Position: placeIDWithPosition.Position,
+			}
+
+			route.Places = append(route.Places, placeWithPosition)
 		}
 
 		routes = append(routes, route)

@@ -861,6 +861,17 @@ const docTemplate = `{
                 }
             }
         },
+        "models.PlaceIDWithPosition": {
+            "type": "object",
+            "properties": {
+                "place_id": {
+                    "type": "integer"
+                },
+                "position": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.PlaceReview": {
             "type": "object",
             "properties": {
@@ -894,6 +905,17 @@ const docTemplate = `{
                 "properties": {}
             }
         },
+        "models.PlaceWithPosition": {
+            "type": "object",
+            "properties": {
+                "place": {
+                    "$ref": "#/definitions/models.Place"
+                },
+                "position": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.ReviewUpdate": {
             "type": "object",
             "properties": {
@@ -921,7 +943,7 @@ const docTemplate = `{
                 "places": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Place"
+                        "$ref": "#/definitions/models.PlaceWithPosition"
                     }
                 },
                 "price": {
@@ -945,10 +967,10 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "place_ids": {
+                "places": {
                     "type": "array",
                     "items": {
-                        "type": "integer"
+                        "$ref": "#/definitions/models.PlaceIDWithPosition"
                     }
                 },
                 "price": {

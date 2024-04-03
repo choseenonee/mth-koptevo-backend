@@ -63,9 +63,9 @@ func (r routeRepo) Create(ctx context.Context, route models.RouteCreate) (int, e
 
 	}
 
-	for _, placeID := range route.PlaceIDs {
-		createRoutePlaceRelationQuery := `INSERT INTO routes_places (route_id, place_id) VALUES ($1, $2);`
-		_, err = tx.ExecContext(ctx, createRoutePlaceRelationQuery, createdRouteID, placeID)
+	for _, placeIDWithPosition := range route.PlaceIDsWithPosition {
+		createRoutePlaceRelationQuery := `INSERT INTO routes_places (route_id, place_id, position) VALUES ($1, $2, $3);`
+		_, err = tx.ExecContext(ctx, createRoutePlaceRelationQuery, createdRouteID, placeIDWithPosition.PlaceID, placeIDWithPosition.Position)
 		if err != nil {
 			if rbErr := tx.Rollback(); rbErr != nil {
 				return 0, customerr.ErrNormalizer(
@@ -86,7 +86,7 @@ func (r routeRepo) Create(ctx context.Context, route models.RouteCreate) (int, e
 	return createdRouteID, nil
 }
 
-func contains[T models.Tag | int](slice []T, elem T) bool {
+func contains[T models.Tag | models.PlaceIDWithPosition](slice []T, elem T) bool {
 	for _, i := range slice {
 		if i == elem {
 			return true
@@ -96,7 +96,7 @@ func contains[T models.Tag | int](slice []T, elem T) bool {
 }
 
 func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, error) {
-	query := `SELECT r.id, r.city_id, r.price, r.name, r.properties, t.id, t.name, rp.place_id  FROM routes r
+	query := `SELECT r.id, r.city_id, r.price, r.name, r.properties, t.id, t.name, rp.place_id, rp.position  FROM routes r
 				LEFT JOIN routes_places rp on r.id = rp.route_id
     			LEFT JOIN routes_tags rt on r.id = rt.route_id
 				LEFT JOIN tags t on rt.tag_id = t.id
@@ -112,8 +112,9 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 	var tagID null.Int
 	var tagName null.String
 	var placeID null.Int
+	var position null.Int
 	for rows.Next() {
-		err = rows.Scan(&route.ID, &route.CityID, &route.Price, &route.Name, &propertiesRow, &tagID, &tagName, &placeID)
+		err = rows.Scan(&route.ID, &route.CityID, &route.Price, &route.Name, &propertiesRow, &tagID, &tagName, &placeID, &position)
 		if err != nil {
 			return models.RouteRaw{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
@@ -132,8 +133,12 @@ func (r routeRepo) GetByID(ctx context.Context, routeID int) (models.RouteRaw, e
 			}
 		}
 		if placeID.Valid {
-			if !contains(route.PlaceIDs, int(placeID.Int64)) {
-				route.PlaceIDs = append(route.PlaceIDs, int(placeID.Int64))
+			placeIDWithPosition := models.PlaceIDWithPosition{
+				PlaceID:  int(placeID.Int64),
+				Position: int(position.Int64),
+			}
+			if !contains(route.PlaceIDsWithPosition, placeIDWithPosition) {
+				route.PlaceIDsWithPosition = append(route.PlaceIDsWithPosition, placeIDWithPosition)
 			}
 		}
 	}

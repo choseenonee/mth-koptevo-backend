@@ -39,6 +39,13 @@ definitions:
           type: integer
         type: array
     type: object
+  models.PlaceIDWithPosition:
+    properties:
+      place_id:
+        type: integer
+      position:
+        type: integer
+    type: object
   models.PlaceReview:
     properties:
       author_id:
@@ -61,6 +68,13 @@ definitions:
         type: integer
       properties: {}
     type: object
+  models.PlaceWithPosition:
+    properties:
+      place:
+        $ref: '#/definitions/models.Place'
+      position:
+        type: integer
+    type: object
   models.ReviewUpdate:
     properties:
       id:
@@ -79,7 +93,7 @@ definitions:
         type: string
       places:
         items:
-          $ref: '#/definitions/models.Place'
+          $ref: '#/definitions/models.PlaceWithPosition'
         type: array
       price:
         type: integer
@@ -95,9 +109,9 @@ definitions:
         type: integer
       name:
         type: string
-      place_ids:
+      places:
         items:
-          type: integer
+          $ref: '#/definitions/models.PlaceIDWithPosition'
         type: array
       price:
         type: integer
