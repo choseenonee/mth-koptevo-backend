@@ -7,7 +7,8 @@ type NoteCreate struct {
 }
 
 type Note struct {
-	ID int `json:"id"`
+	ID        int  `json:"id"`
+	IsCheckIn bool `json:"is_check_in"`
 	NoteCreate
 }
 
