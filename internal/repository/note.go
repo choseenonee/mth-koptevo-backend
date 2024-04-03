@@ -51,7 +51,7 @@ func (n noteRepo) Create(ctx context.Context, noteCreate models.NoteCreate) (int
 	return createdID, nil
 }
 
-func (n noteRepo) GetByID(ctx context.Context, userID int, placeID int) (models.Note, error) {
+func (n noteRepo) GetByIDs(ctx context.Context, userID int, placeID int) (models.Note, error) {
 	query := `SELECT n.id, n.user_id, n.place_id, n.properties, 
        			CASE WHEN upc.place_id IS NOT NULL THEN true ELSE false END as joined
 			FROM notes n
@@ -86,7 +86,7 @@ func (n noteRepo) GetByID(ctx context.Context, userID int, placeID int) (models.
 	return note, nil
 }
 
-func (n noteRepo) getByID(ctx context.Context, noteID int) (models.Note, error) {
+func (n noteRepo) GetByID(ctx context.Context, noteID int) (models.Note, error) {
 	query := `SELECT n.id, n.user_id, n.place_id, n.properties, 
        			CASE WHEN upc.place_id IS NOT NULL THEN true ELSE false END as joined
 			FROM notes n
@@ -144,7 +144,7 @@ func (n noteRepo) GetByUser(ctx context.Context, userID int) ([]models.Note, err
 
 	var notes []models.Note
 	for _, noteID := range noteIDs {
-		note, err := n.getByID(ctx, noteID)
+		note, err := n.GetByID(ctx, noteID)
 		if err != nil {
 			return []models.Note{}, err
 		}

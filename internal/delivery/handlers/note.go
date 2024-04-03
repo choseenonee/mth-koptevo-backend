@@ -73,7 +73,7 @@ func (r NoteHandler) Create(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /note/by_user_and_place_ids [get]
 func (r NoteHandler) GetByIDs(c *gin.Context) {
-	ctx, span := r.tracer.Start(c.Request.Context(), GetNoteByID)
+	ctx, span := r.tracer.Start(c.Request.Context(), GetNoteByIDs)
 	defer span.End()
 
 	userIDRaw := c.Query("user_id")
@@ -90,7 +90,7 @@ func (r NoteHandler) GetByIDs(c *gin.Context) {
 	}
 
 	span.AddEvent(tracing.CallToService)
-	note, err := r.NoteService.GetByID(ctx, userID, placeID)
+	note, err := r.NoteService.GetByIDs(ctx, userID, placeID)
 	if err != nil {
 		span.RecordError(err, trace.WithAttributes(
 			attribute.String(tracing.ServiceError, err.Error())),
@@ -113,7 +113,7 @@ func (r NoteHandler) GetByIDs(c *gin.Context) {
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /note/by_user_id [get]
 func (r NoteHandler) GetByUserID(c *gin.Context) {
-	ctx, span := r.tracer.Start(c.Request.Context(), GetPlaceById)
+	ctx, span := r.tracer.Start(c.Request.Context(), GetNoteByUserID)
 	defer span.End()
 
 	idRaw := c.Query("id")
@@ -129,6 +129,44 @@ func (r NoteHandler) GetByUserID(c *gin.Context) {
 
 	span.AddEvent(tracing.CallToService)
 	place, err := r.NoteService.GetByUser(ctx, id)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.ServiceError, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, place)
+}
+
+// GetByNoteID @Summary Get note by id
+// @Tags note
+// @Accept  json
+// @Produce  json
+// @Param id query int true "Note id"
+// @Success 200 {object} models.Note "Successfully"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /note/by_id [get]
+func (r NoteHandler) GetByNoteID(c *gin.Context) {
+	ctx, span := r.tracer.Start(c.Request.Context(), GetNoteByID)
+	defer span.End()
+
+	idRaw := c.Query("id")
+	id, err := strconv.Atoi(idRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	span.AddEvent(tracing.CallToService)
+	place, err := r.NoteService.GetByID(ctx, id)
 	if err != nil {
 		span.RecordError(err, trace.WithAttributes(
 			attribute.String(tracing.ServiceError, err.Error())),

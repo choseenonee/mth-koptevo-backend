@@ -21,6 +21,7 @@ func RegisterNoteRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tra
 	noteRouter.POST("/create", noteHandler.Create)
 	noteRouter.GET("/by_user_and_place_ids", noteHandler.GetByIDs)
 	noteRouter.GET("/by_user_id", noteHandler.GetByUserID)
+	noteRouter.GET("/by_id", noteHandler.GetByNoteID)
 
 	return noteRouter
 }

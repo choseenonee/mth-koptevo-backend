@@ -29,8 +29,18 @@ func (n noteService) Create(ctx context.Context, noteCreate models.NoteCreate) (
 	return id, nil
 }
 
-func (n noteService) GetByID(ctx context.Context, userID int, placeID int) (models.Note, error) {
-	note, err := n.noteRepo.GetByID(ctx, userID, placeID)
+func (n noteService) GetByIDs(ctx context.Context, userID int, placeID int) (models.Note, error) {
+	note, err := n.noteRepo.GetByIDs(ctx, userID, placeID)
+	if err != nil {
+		n.logger.Error(err.Error())
+		return models.Note{}, err
+	}
+
+	return note, nil
+}
+
+func (n noteService) GetByID(ctx context.Context, noteID int) (models.Note, error) {
+	note, err := n.noteRepo.GetByID(ctx, noteID)
 	if err != nil {
 		n.logger.Error(err.Error())
 		return models.Note{}, err

@@ -251,6 +251,37 @@ paths:
             type: object
       tags:
       - district
+  /note/by_id:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Note id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully
+          schema:
+            $ref: '#/definitions/models.Note'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - note
   /note/by_user_and_place_ids:
     get:
       consumes:

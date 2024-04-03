@@ -38,7 +38,8 @@ type Route interface {
 
 type Note interface {
 	Create(ctx context.Context, noteCreate models.NoteCreate) (int, error)
-	GetByID(ctx context.Context, userID int, placeID int) (models.Note, error)
+	GetByIDs(ctx context.Context, userID int, placeID int) (models.Note, error)
+	GetByID(ctx context.Context, userID int) (models.Note, error)
 	GetByUser(ctx context.Context, userID int) ([]models.Note, error)
 	Update(ctx context.Context, noteUpd models.NoteUpdate) error
 }
