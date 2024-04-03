@@ -66,6 +66,210 @@ const docTemplate = `{
                 }
             }
         },
+        "/note/by_id": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "note"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Note id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/note/by_user_and_place_ids": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "note"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "place_id",
+                        "name": "place_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/note/by_user_id": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "note"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "User id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Note"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/note/create": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "note"
+                ],
+                "parameters": [
+                    {
+                        "description": "Note",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.NoteCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully created note with id",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/place/by_id": {
             "get": {
                 "consumes": [
@@ -816,6 +1020,36 @@ const docTemplate = `{
                 "properties": {}
             }
         },
+        "models.Note": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "is_check_in": {
+                    "type": "boolean"
+                },
+                "place_id": {
+                    "type": "integer"
+                },
+                "properties": {},
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.NoteCreate": {
+            "type": "object",
+            "properties": {
+                "place_id": {
+                    "type": "integer"
+                },
+                "properties": {},
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.Place": {
             "type": "object",
             "properties": {
@@ -893,7 +1127,10 @@ const docTemplate = `{
                 "place_id": {
                     "type": "integer"
                 },
-                "properties": {}
+                "properties": {},
+                "timeStamp": {
+                    "type": "string"
+                }
             }
         },
         "models.PlaceReviewCreate": {
@@ -908,7 +1145,10 @@ const docTemplate = `{
                 "place_id": {
                     "type": "integer"
                 },
-                "properties": {}
+                "properties": {},
+                "timeStamp": {
+                    "type": "string"
+                }
             }
         },
         "models.PlaceWithPosition": {
@@ -1006,6 +1246,9 @@ const docTemplate = `{
                 "properties": {},
                 "route_id": {
                     "type": "integer"
+                },
+                "timeStamp": {
+                    "type": "string"
                 }
             }
         },
@@ -1021,6 +1264,9 @@ const docTemplate = `{
                 "properties": {},
                 "route_id": {
                     "type": "integer"
+                },
+                "timeStamp": {
+                    "type": "string"
                 }
             }
         },

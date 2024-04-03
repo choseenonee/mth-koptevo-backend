@@ -35,3 +35,11 @@ type Route interface {
 	GetByID(ctx context.Context, routeID int) (models.RouteRaw, error)
 	GetAll(ctx context.Context, page int) ([]models.RouteRaw, error)
 }
+
+type Note interface {
+	Create(ctx context.Context, noteCreate models.NoteCreate) (int, error)
+	GetByIDs(ctx context.Context, userID int, placeID int) (models.Note, error)
+	GetByID(ctx context.Context, userID int) (models.Note, error)
+	GetByUser(ctx context.Context, userID int) ([]models.Note, error)
+	Update(ctx context.Context, noteUpd models.NoteUpdate) error
+}

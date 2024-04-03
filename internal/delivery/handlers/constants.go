@@ -21,4 +21,9 @@ const (
 	RouteCreate     = "Create route"
 	GetRouteByID    = "Get route by id"
 	GetRoutesByPage = "Get routes by page"
+
+	NoteCreate      = "Create note"
+	GetNoteByID     = "Get note by id"
+	GetNoteByUserID = "Get note by user id"
+	GetNoteByIDs    = "Get note by user and place ids"
 )
