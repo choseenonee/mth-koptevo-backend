@@ -51,7 +51,42 @@ func (n noteRepo) Create(ctx context.Context, noteCreate models.NoteCreate) (int
 	return createdID, nil
 }
 
-func (n noteRepo) GetByID(ctx context.Context, noteID int) (models.Note, error) {
+func (n noteRepo) GetByID(ctx context.Context, userID int, placeID int) (models.Note, error) {
+	query := `SELECT n.id, n.user_id, n.place_id, n.properties, 
+       			CASE WHEN upc.place_id IS NOT NULL THEN true ELSE false END as joined
+			FROM notes n
+			LEFT JOIN users_place_checkin upc ON n.place_id = upc.place_id AND n.user_id = upc.user_id
+            WHERE n.user_id = $1 AND n.place_id = $2;`
+
+	rows, err := n.db.QueryContext(ctx, query, userID, placeID)
+	if err != nil {
+		return models.Note{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	var note models.Note
+	for rows.Next() {
+		var propertiesRow []byte
+		err = rows.Scan(&note.ID, &note.UserID, &note.PlaceID, &propertiesRow, &note.IsCheckIn)
+		if err != nil {
+			return models.Note{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		err = json.Unmarshal(propertiesRow, &note.Properties)
+		if err != nil {
+			return models.Note{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		}
+
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return models.Note{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.RowsErr, Err: err})
+	}
+
+	return note, nil
+}
+
+func (n noteRepo) getByID(ctx context.Context, noteID int) (models.Note, error) {
 	query := `SELECT n.id, n.user_id, n.place_id, n.properties, 
        			CASE WHEN upc.place_id IS NOT NULL THEN true ELSE false END as joined
 			FROM notes n
@@ -109,7 +144,7 @@ func (n noteRepo) GetByUser(ctx context.Context, userID int) ([]models.Note, err
 
 	var notes []models.Note
 	for _, noteID := range noteIDs {
-		note, err := n.GetByID(ctx, noteID)
+		note, err := n.getByID(ctx, noteID)
 		if err != nil {
 			return []models.Note{}, err
 		}
