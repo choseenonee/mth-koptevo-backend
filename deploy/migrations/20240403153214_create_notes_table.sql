@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS notes (
     id SERIAL PRIMARY KEY,
     user_id INTEGER,
     place_id INTEGER REFERENCES places(id),
-    properties JSONB
+    properties JSONB,
+    UNIQUE (user_id, place_id)
 );
 -- +goose StatementEnd
 

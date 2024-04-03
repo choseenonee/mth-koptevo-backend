@@ -64,8 +64,8 @@ func (n noteRepo) GetByID(ctx context.Context, noteID int) (models.Note, error) 
 	}
 
 	var note models.Note
-	var propertiesRow []byte
 	for rows.Next() {
+		var propertiesRow []byte
 		err = rows.Scan(&note.ID, &note.UserID, &note.PlaceID, &propertiesRow, &note.IsCheckIn)
 		if err != nil {
 			return models.Note{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
