@@ -48,4 +48,10 @@ type Note interface {
 type Companions interface {
 	CreatePlaceCompanions(ctx context.Context, companion models.CompanionsPlaceCreate) error
 	CreateRouteCompanions(ctx context.Context, companion models.CompanionsRouteCreate) error
+	// GetByUser сначала places, затем routes
+	GetByUser(ctx context.Context, userID int) ([]models.CompanionsPlace, []models.CompanionsRoute, error)
+	GetCompanionsPlace(ctx context.Context, filters models.CompanionsFilters) ([]models.CompanionsPlace, error)
+	GetCompanionsRoute(ctx context.Context, filters models.CompanionsFilters) ([]models.CompanionsRoute, error)
+	DeleteCompanionsPlace(ctx context.Context, id int) error
+	DeleteCompanionsRoute(ctx context.Context, id int) error
 }
