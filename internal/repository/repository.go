@@ -49,4 +49,6 @@ type Favourite interface {
 	LikeRoute(ctx context.Context, like models.Like) error
 	// GetLikedByUser PlaceIDs then RouteIDs
 	GetLikedByUser(ctx context.Context, userID int) ([]int, []int, error)
+	DeleteOnPlace(ctx context.Context, like models.Like) error
+	DeleteOnRoute(ctx context.Context, like models.Like) error
 }

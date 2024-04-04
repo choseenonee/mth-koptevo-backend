@@ -128,3 +128,38 @@ func (f favouriteRepo) GetLikedByUser(ctx context.Context, userID int) ([]int, [
 
 	return placeIDs, routeIDs, nil
 }
+
+func (f favouriteRepo) delete(ctx context.Context, query string, userID, entityID int) error {
+	tx, err := f.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	_, err = tx.ExecContext(ctx, query, userID, entityID)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
+}
+
+func (f favouriteRepo) DeleteOnPlace(ctx context.Context, like models.Like) error {
+	query := `DELETE FROM users_favourite_places WHERE user_id = $1 AND place_id = $2;`
+	return f.delete(ctx, query, like.UserID, like.EntityID)
+}
+
+func (f favouriteRepo) DeleteOnRoute(ctx context.Context, like models.Like) error {
+	query := `DELETE FROM users_favourite_routes WHERE user_id = $1 AND route_id = $2;`
+	return f.delete(ctx, query, like.UserID, like.EntityID)
+}

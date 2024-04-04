@@ -76,3 +76,21 @@ func (f favouriteService) GetLikedByUser(ctx context.Context, userID int) ([]mod
 
 	return places, routesRaw, nil
 }
+
+func (f favouriteService) DeleteOnPlace(ctx context.Context, like models.Like) error {
+	if err := f.favouriteRepo.DeleteOnPlace(ctx, like); err != nil {
+		f.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
+
+func (f favouriteService) DeleteOnRoute(ctx context.Context, like models.Like) error {
+	if err := f.favouriteRepo.DeleteOnRoute(ctx, like); err != nil {
+		f.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
