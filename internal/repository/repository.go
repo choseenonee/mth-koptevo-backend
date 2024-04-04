@@ -65,6 +65,7 @@ type Favourite interface {
 }
 
 type User interface {
-	//TODO: если уже чекин особую ошибку и обрабатывать потом
+	GetUser(ctx context.Context, login string) (int, string, error)
+	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
 	CheckInPlace(ctx context.Context, userID, placeID int) error
 }
