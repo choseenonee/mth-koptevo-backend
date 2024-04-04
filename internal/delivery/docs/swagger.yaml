@@ -1,4 +1,26 @@
 definitions:
+  models.CompanionsPlaceCreate:
+    properties:
+      dateFrom:
+        type: string
+      dateTo:
+        type: string
+      placeID:
+        type: integer
+      userID:
+        type: integer
+    type: object
+  models.CompanionsRouteCreate:
+    properties:
+      dateFrom:
+        type: string
+      dateTo:
+        type: string
+      routeID:
+        type: integer
+      userID:
+        type: integer
+    type: object
   models.District:
     properties:
       city_id:
@@ -218,6 +240,70 @@ definitions:
 info:
   contact: {}
 paths:
+  /companions/create_place_companion:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new companion place to the database
+      parameters:
+      - description: Companion Place Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompanionsPlaceCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created companion place with id
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new companion place
+      tags:
+      - companions
+  /companions/create_route_companion:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new companion place to the database
+      parameters:
+      - description: Companion Place Data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompanionsRouteCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created companion place with id
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new companion place
+      tags:
+      - companions
   /district/by_city_id:
     get:
       consumes:

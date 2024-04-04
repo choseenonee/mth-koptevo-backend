@@ -12,6 +12,7 @@ const (
 	ScanErr        = "scan error: %v"
 	ExecErr        = "execution error: %v"
 	RowsErr        = "rows error: %v"
+	QueryErr       = "query error: %v"
 
 	CountErr = "expected to delete 1 record, got %d"
 	BindErr  = "bind properties to json err: %v"

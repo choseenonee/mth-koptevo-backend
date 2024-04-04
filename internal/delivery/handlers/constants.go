@@ -26,4 +26,6 @@ const (
 	GetNoteByID     = "Get note by id"
 	GetNoteByUserID = "Get note by user id"
 	GetNoteByIDs    = "Get note by user and place ids"
+
+	CompanionsCreate = "Create companion"
 )

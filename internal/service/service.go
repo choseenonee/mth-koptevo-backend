@@ -44,3 +44,8 @@ type Note interface {
 	GetByUser(ctx context.Context, userID int) ([]models.Note, error)
 	Update(ctx context.Context, noteUpd models.NoteUpdate) error
 }
+
+type Companions interface {
+	CreatePlaceCompanions(ctx context.Context, companion models.CompanionsPlaceCreate) error
+	CreateRouteCompanions(ctx context.Context, companion models.CompanionsRouteCreate) error
+}
