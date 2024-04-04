@@ -71,21 +71,25 @@ func validateHash(hash string, slice *[]string) bool {
 func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (string, error) {
 	decodedString, err := vernamCipher(cipher)
 	if err != nil {
+		u.logger.Error(err.Error())
 		return "", err
 	}
 
 	splittedStrings := strings.Split(decodedString, " ")
 	if len(splittedStrings) != 2 {
+		u.logger.Error(err.Error())
 		return "", fmt.Errorf("расшифрованная строка не валидна")
 	}
 
 	placeID, err := strconv.Atoi(splittedStrings[0])
 	if err != nil {
+		u.logger.Error(err.Error())
 		return "", fmt.Errorf("расшифрованная строка не содержит в себе валидный placeID")
 	}
 
 	err = u.userRepo.CheckInPlace(ctx, userID, placeID)
 	if err != nil {
+		u.logger.Error(err.Error())
 		if strings.Contains(err.Error(), "unique") {
 			return "", fmt.Errorf("пользователь уже чекинился в этом месте %v", err)
 		}
