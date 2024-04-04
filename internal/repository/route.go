@@ -156,7 +156,7 @@ func (r routeRepo) GetAll(ctx context.Context, page int) ([]models.RouteRaw, err
 					ORDER BY r.id
 					LIMIT $1 OFFSET $2`
 
-	rows, err := r.db.QueryContext(ctx, query, viper.GetInt(config.PlacesOnPage), page)
+	rows, err := r.db.QueryContext(ctx, query, viper.GetInt(config.PlacesOnPage), viper.GetInt(config.PlacesOnPage)*page)
 	if err != nil {
 		return []models.RouteRaw{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
 	}

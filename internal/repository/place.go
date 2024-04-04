@@ -135,7 +135,7 @@ func (p placeRepo) GetAllWithFilter(ctx context.Context, districtID int, cityID 
 	}
 
 	// OFFSET с 0 нада бээмс
-	queryBuilder = queryBuilder.Limit(uint64(viper.GetInt(config.PlacesOnPage))).Offset(uint64(page))
+	queryBuilder = queryBuilder.Limit(uint64(viper.GetInt(config.PlacesOnPage))).Offset(uint64(viper.GetInt(config.PlacesOnPage) * page))
 
 	query, args, err := queryBuilder.ToSql()
 	if err != nil {
