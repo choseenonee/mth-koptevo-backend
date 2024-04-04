@@ -44,3 +44,10 @@ type Note interface {
 	GetByUser(ctx context.Context, userID int) ([]models.Note, error)
 	Update(ctx context.Context, noteUpd models.NoteUpdate) error
 }
+
+type Favourite interface {
+	LikePlace(ctx context.Context, like models.Like) error
+	LikeRoute(ctx context.Context, like models.Like) error
+	// GetLikedByUser Places then Routes RAW
+	GetLikedByUser(ctx context.Context, userID int) ([]models.Place, []models.RouteRaw, error)
+}
