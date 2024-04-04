@@ -267,6 +267,14 @@ definitions:
       name:
         type: string
     type: object
+  models.UserCreate:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+      properties: {}
+    type: object
   swagger.Companion:
     properties:
       places:
@@ -305,6 +313,13 @@ definitions:
         items:
           $ref: '#/definitions/models.RouteReview'
         type: array
+    type: object
+  swagger.User:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
     type: object
 info:
   contact: {}
@@ -1328,4 +1343,135 @@ paths:
             type: object
       tags:
       - tag
+  /user/check_in:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Cipher
+        in: query
+        name: cipher
+        required: true
+        type: string
+      - description: UserID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Just valid hash
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/login:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: login data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user ID
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/register:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: create user data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.UserCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user ID
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/validate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: hash
+        in: query
+        name: hash
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Just bool
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
 swagger: "2.0"

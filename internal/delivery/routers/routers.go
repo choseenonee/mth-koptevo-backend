@@ -16,4 +16,5 @@ func InitRouting(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer trace.Trac
 	_ = RegisterNoteRouter(r, db, logger, tracer)
 	_ = RegisterCompanionsRouter(r, db, logger, tracer)
 	_ = RegisterFavouriteRouter(r, db, logger, tracer)
+	_ = RegisterUserRouter(r, db, logger, tracer)
 }

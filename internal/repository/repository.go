@@ -63,3 +63,9 @@ type Favourite interface {
 	DeleteOnPlace(ctx context.Context, like models.Like) error
 	DeleteOnRoute(ctx context.Context, like models.Like) error
 }
+
+type User interface {
+	GetUser(ctx context.Context, login string) (int, string, error)
+	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
+	CheckInPlace(ctx context.Context, userID, placeID int) error
+}
