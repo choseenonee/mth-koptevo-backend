@@ -6,6 +6,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"mth/internal/models"
+	"mth/internal/models/swagger"
 	"mth/internal/service"
 	tracing "mth/pkg/trace"
 	"net/http"
@@ -109,4 +111,90 @@ func (u UserHandler) ValidateHash(c *gin.Context) {
 	} else {
 		c.Status(http.StatusTeapot)
 	}
+}
+
+// GetUser @Summary Login user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param data body swagger.User true "login data"
+// @Success 200 {object} int "user ID"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/login [put]
+func (u UserHandler) GetUser(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "User login")
+	defer span.End()
+
+	var user swagger.User
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := u.userService.GetUser(ctx, user.Login, user.Password)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		if strings.Contains(err.Error(), "user password isn't correct") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, userID)
+}
+
+// CreateUser @Summary Create user
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param data body models.UserCreate true "create user data"
+// @Success 200 {object} int "user ID"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/register [put]
+func (u UserHandler) CreateUser(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "User register")
+	defer span.End()
+
+	var user models.UserCreate
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userID, err := u.userService.CreateUser(ctx, user)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		if strings.Contains(err.Error(), "user password isn't correct") {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, userID)
 }

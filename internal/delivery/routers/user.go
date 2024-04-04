@@ -20,6 +20,8 @@ func RegisterUserRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tra
 
 	userRouter.POST("/check_in", userHandler.CheckIn)
 	userRouter.POST("/validate", userHandler.ValidateHash)
+	userRouter.PUT("/login", userHandler.GetUser)
+	userRouter.PUT("/register", userHandler.CreateUser)
 
 	return userRouter
 }
