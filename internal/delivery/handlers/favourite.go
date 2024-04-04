@@ -109,7 +109,7 @@ func (r FavouriteHandler) LikeRoute(c *gin.Context) {
 // @Success 200 {object} string "Successfully!"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /favourite/by_user [get]
+// @Router /favourite/by_user_id [get]
 func (r FavouriteHandler) GetLikedByUser(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), GetLiked)
 	defer span.End()
