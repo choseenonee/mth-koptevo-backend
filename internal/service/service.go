@@ -55,3 +55,12 @@ type Companions interface {
 	DeleteCompanionsPlace(ctx context.Context, id int) error
 	DeleteCompanionsRoute(ctx context.Context, id int) error
 }
+
+type Favourite interface {
+	LikePlace(ctx context.Context, like models.Like) error
+	LikeRoute(ctx context.Context, like models.Like) error
+	// GetLikedByUser Places then Routes RAW
+	GetLikedByUser(ctx context.Context, userID int) ([]models.Place, []models.RouteRaw, error)
+	DeleteOnPlace(ctx context.Context, like models.Like) error
+	DeleteOnRoute(ctx context.Context, like models.Like) error
+}

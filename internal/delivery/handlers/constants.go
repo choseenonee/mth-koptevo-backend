@@ -28,4 +28,10 @@ const (
 	GetNoteByIDs    = "Get note by user and place ids"
 
 	CompanionsCreate = "Create companion"
+
+	LikePlace     = "Like place"
+	LikeRoute     = "Like route"
+	GetLiked      = "Get liked"
+	DeleteOnPlace = "Delete on place"
+	DeleteOnRoute = "Delete on route"
 )
