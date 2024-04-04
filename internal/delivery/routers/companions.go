@@ -20,6 +20,11 @@ func RegisterCompanionsRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, trac
 
 	companionsRouter.POST("/create_place_companion", companionsHandler.CreateCompanionPlace)
 	companionsRouter.POST("/create_route_companion", companionsHandler.CreateCompanionRoute)
+	companionsRouter.GET("/by_user", companionsHandler.GetByUser)
+	companionsRouter.GET("/get_by_place", companionsHandler.GetCompanionsPlace)
+	companionsRouter.GET("/get_by_route", companionsHandler.GetCompanionsRoute)
+	companionsRouter.DELETE("/place", companionsHandler.DeleteFromPlace)
+	companionsRouter.DELETE("/route", companionsHandler.DeleteFromRoute)
 
 	return companionsRouter
 }

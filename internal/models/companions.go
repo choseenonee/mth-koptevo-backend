@@ -3,49 +3,48 @@ package models
 import "time"
 
 type CompanionsFilters struct {
-	Page     int
-	EntityID int
-	DateFrom time.Time
-	DateTo   time.Time
+	Page     int       `json:"page"`
+	EntityID int       `json:"entity_id"`
+	DateFrom time.Time `json:"date_from"`
+	DateTo   time.Time `json:"date_to"`
 }
 
 type CompanionCreateBase struct {
-	UserID   int
-	DateFrom time.Time
-	DateTo   time.Time
+	UserID   int       `json:"user_id"`
+	DateFrom time.Time `json:"date_from"`
+	DateTo   time.Time `json:"date_to"`
 }
 
 type CompanionsPlaceCreate struct {
-	PlaceID int
+	PlaceID int `json:"place_id"`
 	CompanionCreateBase
 }
 
 type CompanionsRouteCreate struct {
-	RouteID int
+	RouteID int `json:"route_id"`
 	CompanionCreateBase
 }
 
+type CompanionBase struct {
+	ID             int         `json:"id"`
+	UserID         int         `json:"user_id"`
+	UserProperties interface{} `json:"user_properties"`
+	CityName       string      `json:"city_name"`
+	DateFrom       time.Time   `json:"date_from"`
+	DateTo         time.Time   `json:"date_to"`
+}
+
 type CompanionsPlace struct {
-	ID              int
-	UserID          int
-	UserProperties  interface{}
-	PlaceID         int
-	PlaceName       string
-	CityName        string
-	PlaceProperties interface{}
-	DateFrom        time.Time
-	DateTo          time.Time
+	PlaceID         int         `json:"place_id"`
+	PlaceName       string      `json:"place_name"`
+	PlaceProperties interface{} `json:"place_properties"`
+	CompanionBase
 }
 
 type CompanionsRoute struct {
-	ID              int
-	UserID          int
-	UserProperties  interface{}
-	RouteID         int
-	RouteName       string
-	Price           int
-	RouteProperties interface{}
-	CityName        string
-	DateFrom        time.Time
-	DateTo          time.Time
+	RouteID         int         `json:"route_id"`
+	RouteName       string      `json:"route_name"`
+	Price           int         `json:"price"`
+	RouteProperties interface{} `json:"route_properties"`
+	CompanionBase
 }

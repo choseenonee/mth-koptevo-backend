@@ -15,6 +15,55 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/companions/by_user": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companions"
+                ],
+                "summary": "get companion data by user id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "$ref": "#/definitions/swagger.Companion"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/companions/create_place_companion": {
             "post": {
                 "description": "Adds a new companion place to the database",
@@ -91,6 +140,206 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "Successfully created companion place with id"
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companions/get_by_place": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companions"
+                ],
+                "summary": "get places companions by filters",
+                "parameters": [
+                    {
+                        "description": "user id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CompanionsFilters"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CompanionsPlace"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companions/get_by_route": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companions"
+                ],
+                "summary": "get places companions by filters",
+                "parameters": [
+                    {
+                        "description": "user id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.CompanionsFilters"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.CompanionsPlace"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companions/place": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companions"
+                ],
+                "summary": "get companion data by user id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "companion table id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
+                    },
+                    "400": {
+                        "description": "Invalid input data",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/companions/route": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "companions"
+                ],
+                "summary": "get companion data by user id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "companion table id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success"
                     },
                     "400": {
                         "description": "Invalid input data",
@@ -1103,36 +1352,112 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.CompanionsFilters": {
+            "type": "object",
+            "properties": {
+                "date_from": {
+                    "type": "string"
+                },
+                "date_to": {
+                    "type": "string"
+                },
+                "entity_id": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.CompanionsPlace": {
+            "type": "object",
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "date_from": {
+                    "type": "string"
+                },
+                "date_to": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "place_id": {
+                    "type": "integer"
+                },
+                "place_name": {
+                    "type": "string"
+                },
+                "place_properties": {},
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_properties": {}
+            }
+        },
         "models.CompanionsPlaceCreate": {
             "type": "object",
             "properties": {
-                "dateFrom": {
+                "date_from": {
                     "type": "string"
                 },
-                "dateTo": {
+                "date_to": {
                     "type": "string"
                 },
-                "placeID": {
+                "place_id": {
                     "type": "integer"
                 },
-                "userID": {
+                "user_id": {
                     "type": "integer"
                 }
+            }
+        },
+        "models.CompanionsRoute": {
+            "type": "object",
+            "properties": {
+                "city_name": {
+                    "type": "string"
+                },
+                "date_from": {
+                    "type": "string"
+                },
+                "date_to": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "price": {
+                    "type": "integer"
+                },
+                "route_id": {
+                    "type": "integer"
+                },
+                "route_name": {
+                    "type": "string"
+                },
+                "route_properties": {},
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_properties": {}
             }
         },
         "models.CompanionsRouteCreate": {
             "type": "object",
             "properties": {
-                "dateFrom": {
+                "date_from": {
                     "type": "string"
                 },
-                "dateTo": {
+                "date_to": {
                     "type": "string"
                 },
-                "routeID": {
+                "route_id": {
                     "type": "integer"
                 },
-                "userID": {
+                "user_id": {
                     "type": "integer"
                 }
             }
@@ -1418,6 +1743,23 @@ const docTemplate = `{
             "properties": {
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "swagger.Companion": {
+            "type": "object",
+            "properties": {
+                "places": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CompanionsPlace"
+                    }
+                },
+                "routes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.CompanionsRoute"
+                    }
                 }
             }
         },

@@ -1,24 +1,75 @@
 definitions:
+  models.CompanionsFilters:
+    properties:
+      date_from:
+        type: string
+      date_to:
+        type: string
+      entity_id:
+        type: integer
+      page:
+        type: integer
+    type: object
+  models.CompanionsPlace:
+    properties:
+      city_name:
+        type: string
+      date_from:
+        type: string
+      date_to:
+        type: string
+      id:
+        type: integer
+      place_id:
+        type: integer
+      place_name:
+        type: string
+      place_properties: {}
+      user_id:
+        type: integer
+      user_properties: {}
+    type: object
   models.CompanionsPlaceCreate:
     properties:
-      dateFrom:
+      date_from:
         type: string
-      dateTo:
+      date_to:
         type: string
-      placeID:
+      place_id:
         type: integer
-      userID:
+      user_id:
         type: integer
+    type: object
+  models.CompanionsRoute:
+    properties:
+      city_name:
+        type: string
+      date_from:
+        type: string
+      date_to:
+        type: string
+      id:
+        type: integer
+      price:
+        type: integer
+      route_id:
+        type: integer
+      route_name:
+        type: string
+      route_properties: {}
+      user_id:
+        type: integer
+      user_properties: {}
     type: object
   models.CompanionsRouteCreate:
     properties:
-      dateFrom:
+      date_from:
         type: string
-      dateTo:
+      date_to:
         type: string
-      routeID:
+      route_id:
         type: integer
-      userID:
+      user_id:
         type: integer
     type: object
   models.District:
@@ -209,6 +260,17 @@ definitions:
       name:
         type: string
     type: object
+  swagger.Companion:
+    properties:
+      places:
+        items:
+          $ref: '#/definitions/models.CompanionsPlace'
+        type: array
+      routes:
+        items:
+          $ref: '#/definitions/models.CompanionsRoute'
+        type: array
+    type: object
   swagger.Filters:
     properties:
       city_id:
@@ -240,6 +302,38 @@ definitions:
 info:
   contact: {}
 paths:
+  /companions/by_user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: '#/definitions/swagger.Companion'
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: get companion data by user id
+      tags:
+      - companions
   /companions/create_place_companion:
     post:
       consumes:
@@ -302,6 +396,136 @@ paths:
               type: string
             type: object
       summary: Create a new companion place
+      tags:
+      - companions
+  /companions/get_by_place:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: user id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompanionsFilters'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            items:
+              $ref: '#/definitions/models.CompanionsPlace'
+            type: array
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: get places companions by filters
+      tags:
+      - companions
+  /companions/get_by_route:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: user id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.CompanionsFilters'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+          schema:
+            items:
+              $ref: '#/definitions/models.CompanionsPlace'
+            type: array
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: get places companions by filters
+      tags:
+      - companions
+  /companions/place:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: companion table id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: get companion data by user id
+      tags:
+      - companions
+  /companions/route:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: companion table id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: success
+        "400":
+          description: Invalid input data
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: get companion data by user id
       tags:
       - companions
   /district/by_city_id:
