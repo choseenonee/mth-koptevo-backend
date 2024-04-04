@@ -21,8 +21,8 @@ func RegisterFavouriteRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, trace
 	favouriteHandler := handlers.InitFavouriteHandler(favouriteService, tracer)
 
 	favouriteRouter.POST("/like_place", favouriteHandler.LikePlace)
-	favouriteRouter.GET("/like_route", favouriteHandler.LikeRoute)
-	favouriteRouter.PUT("/by_user_id", favouriteHandler.GetLikedByUser)
+	favouriteRouter.POST("/like_route", favouriteHandler.LikeRoute)
+	favouriteRouter.GET("/by_user_id", favouriteHandler.GetLikedByUser)
 
 	return favouriteRouter
 }

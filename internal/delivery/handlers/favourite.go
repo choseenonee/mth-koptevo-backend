@@ -71,7 +71,7 @@ func (r FavouriteHandler) LikePlace(c *gin.Context) {
 // @Success 200 {object} string "Successfully!"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /favourite/like_route[post]
+// @Router /favourite/like_route [post]
 func (r FavouriteHandler) LikeRoute(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), LikeRoute)
 	defer span.End()
