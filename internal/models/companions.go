@@ -26,8 +26,10 @@ type CompanionsRouteCreate struct {
 }
 
 type CompanionsPlace struct {
+	ID              int
 	UserID          int
 	UserProperties  interface{}
+	PlaceID         int
 	PlaceName       string
 	CityName        string
 	PlaceProperties interface{}
@@ -36,8 +38,10 @@ type CompanionsPlace struct {
 }
 
 type CompanionsRoute struct {
+	ID              int
 	UserID          int
 	UserProperties  interface{}
+	RouteID         int
 	RouteName       string
 	Price           int
 	RouteProperties interface{}
