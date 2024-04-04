@@ -4,26 +4,29 @@ import "time"
 
 type CompanionsFilters struct {
 	Page     int
-	ID       int
+	EntityID int
+	DateFrom time.Time
+	DateTo   time.Time
+}
+
+type CompanionCreateBase struct {
+	UserID   int
 	DateFrom time.Time
 	DateTo   time.Time
 }
 
 type CompanionsPlaceCreate struct {
-	UserID   int
-	PlaceID  int
-	DateFrom time.Time
-	DateTo   time.Time
+	PlaceID int
+	CompanionCreateBase
 }
 
 type CompanionsRouteCreate struct {
-	UserID   int
-	RouteID  int
-	DateFrom time.Time
-	DateTo   time.Time
+	RouteID int
+	CompanionCreateBase
 }
 
 type CompanionsPlace struct {
+	UserID          int
 	UserProperties  interface{}
 	PlaceName       string
 	CityName        string
@@ -33,6 +36,7 @@ type CompanionsPlace struct {
 }
 
 type CompanionsRoute struct {
+	UserID          int
 	UserProperties  interface{}
 	RouteName       string
 	Price           int

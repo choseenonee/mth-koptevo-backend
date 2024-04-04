@@ -111,7 +111,7 @@ func (c companionsRepo) CreateRouteCompanions(ctx context.Context, companion mod
 func (c companionsRepo) GetCompanionsPlace(ctx context.Context, filters models.CompanionsFilters) ([]models.CompanionsPlace, error) {
 	var companions []models.CompanionsPlace
 
-	selectQuery := `SELECT c.date_from, c.date_to, u.properties, p.name, p.properties, city.name
+	selectQuery := `SELECT c.date_from, c.date_to, u.properties, p.name, p.properties, city.name, u.id
 					FROM companions_places c
 					LEFT JOIN users u ON c.user_id = u.id
 					LEFT JOIN places p ON c.place_id = p.id
@@ -119,7 +119,7 @@ func (c companionsRepo) GetCompanionsPlace(ctx context.Context, filters models.C
 					WHERE NOT (c.date_from > $2 OR c.date_to < $1) AND c.place_id = $3
 					OFFSET $3 LIMIT $5;`
 
-	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.ID, (filters.Page-1)*50, filters.Page)
+	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.EntityID, (filters.Page-1)*10, filters.Page)
 	if err != nil {
 		return []models.CompanionsPlace{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.QueryErr, Err: err})
 	}
@@ -127,7 +127,8 @@ func (c companionsRepo) GetCompanionsPlace(ctx context.Context, filters models.C
 	for rows.Next() {
 		var companion models.CompanionsPlace
 
-		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &companion.UserProperties, &companion.PlaceName, &companion.PlaceProperties, &companion.CityName)
+		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &companion.UserProperties, &companion.PlaceName,
+			&companion.PlaceProperties, &companion.CityName, &companion.UserID)
 		if err != nil {
 			return []models.CompanionsPlace{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
@@ -141,7 +142,7 @@ func (c companionsRepo) GetCompanionsPlace(ctx context.Context, filters models.C
 func (c companionsRepo) GetCompanionsRoute(ctx context.Context, filters models.CompanionsFilters) ([]models.CompanionsRoute, error) {
 	var companions []models.CompanionsRoute
 
-	selectQuery := `SELECT c.date_from, c.date_to, u.properties, r.name, r.price, r.properties, city.name
+	selectQuery := `SELECT c.date_from, c.date_to, u.properties, r.name, r.price, r.properties, city.name, u.id
 					FROM companions_routes c
 					LEFT JOIN users u ON c.user_id = u.id
 					LEFT JOIN routes r ON c.route_id = r.id
@@ -149,7 +150,7 @@ func (c companionsRepo) GetCompanionsRoute(ctx context.Context, filters models.C
 					WHERE NOT (c.date_from > $2 OR c.date_to < $1) AND c.route_id = $3
 					OFFSET $3 LIMIT $5;`
 
-	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.ID, (filters.Page-1)*50, filters.Page)
+	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.EntityID, (filters.Page-1)*10, filters.Page)
 	if err != nil {
 		return []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.QueryErr, Err: err})
 	}
@@ -157,7 +158,8 @@ func (c companionsRepo) GetCompanionsRoute(ctx context.Context, filters models.C
 	for rows.Next() {
 		var companion models.CompanionsRoute
 
-		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &companion.UserProperties, &companion.RouteName, &companion.Price, &companion.RouteProperties, &companion.CityName)
+		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &companion.UserProperties, &companion.RouteName,
+			&companion.Price, &companion.RouteProperties, &companion.CityName, &companion.UserID)
 		if err != nil {
 			return []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
