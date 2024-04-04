@@ -19,6 +19,7 @@ const (
 	JaegerPort       = "JAEGER_PORT"
 	PlacesOnPage     = "PLACES_ON_PAGE"
 	CompanionsOnPage = "COMPANIONS_ON_PAGE"
+	CipherKey        = "CIPHER_KEY"
 )
 
 func InitConfig() {

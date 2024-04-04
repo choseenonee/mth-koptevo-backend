@@ -63,3 +63,8 @@ type Favourite interface {
 	DeleteOnPlace(ctx context.Context, like models.Like) error
 	DeleteOnRoute(ctx context.Context, like models.Like) error
 }
+
+type User interface {
+	//TODO: если уже чекин особую ошибку и обрабатывать потом
+	CheckInPlace(ctx context.Context, userID, placeID int) error
+}

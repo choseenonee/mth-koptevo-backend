@@ -64,3 +64,8 @@ type Favourite interface {
 	DeleteOnPlace(ctx context.Context, like models.Like) error
 	DeleteOnRoute(ctx context.Context, like models.Like) error
 }
+
+type User interface {
+	CheckIn(ctx context.Context, cipher string, userID int) (string, error)
+	ValidateHash(ctx context.Context, hash string) bool
+}

@@ -1328,4 +1328,71 @@ paths:
             type: object
       tags:
       - tag
+  /user/check_in:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Cipher
+        in: query
+        name: cipher
+        required: true
+        type: string
+      - description: UserID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Just valid hash
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/validate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: hash
+        in: query
+        name: hash
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Just bool
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
 swagger: "2.0"
