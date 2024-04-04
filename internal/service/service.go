@@ -66,6 +66,8 @@ type Favourite interface {
 }
 
 type User interface {
+	GetUser(ctx context.Context, login, password string) (int, error)
+	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
 	CheckIn(ctx context.Context, cipher string, userID int) (string, error)
 	ValidateHash(ctx context.Context, hash string) bool
 }

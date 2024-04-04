@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/spf13/viper"
+	"mth/internal/models"
 	"mth/internal/repository"
 	"mth/pkg/config"
 	"mth/pkg/log"
@@ -105,4 +106,28 @@ func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (s
 
 func (u *userService) ValidateHash(ctx context.Context, hash string) bool {
 	return validateHash(hash, &u.hashes)
+}
+
+func (u *userService) GetUser(ctx context.Context, login, password string) (int, error) {
+	id, pwd, err := u.userRepo.GetUser(ctx, login)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return 0, err
+	}
+
+	if password == pwd {
+		return id, nil
+	} else {
+		return 0, fmt.Errorf("user password isn't correct")
+	}
+}
+
+func (u *userService) CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error) {
+	id, err := u.userRepo.CreateUser(ctx, userCreate)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return 0, err
+	}
+
+	return id, nil
 }
