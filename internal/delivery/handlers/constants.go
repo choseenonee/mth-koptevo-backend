@@ -27,7 +27,9 @@ const (
 	GetNoteByUserID = "Get note by user id"
 	GetNoteByIDs    = "Get note by user and place ids"
 
-	LikePlace = "Like place"
-	LikeRoute = "Like route"
-	GetLiked  = "Get liked"
+	LikePlace     = "Like place"
+	LikeRoute     = "Like route"
+	GetLiked      = "Get liked"
+	DeleteOnPlace = "Delete on place"
+	DeleteOnRoute = "Delete on route"
 )

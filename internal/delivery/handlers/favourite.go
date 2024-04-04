@@ -138,3 +138,79 @@ func (r FavouriteHandler) GetLikedByUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, swagger.InitFavourite(places, routesRaw))
 }
+
+// DeleteOnPlace @Summary Delete liked on place
+// @Tags favourite
+// @Accept  json
+// @Produce  json
+// @Param delete body models.Like true "delete data"
+// @Success 200 {object} string "Successfully!"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /favourite/like_place [delete]
+func (r FavouriteHandler) DeleteOnPlace(c *gin.Context) {
+	ctx, span := r.tracer.Start(c.Request.Context(), DeleteOnPlace)
+	defer span.End()
+
+	var like models.Like
+
+	if err := c.ShouldBindJSON(&like); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	span.AddEvent(tracing.CallToService)
+	err := r.FavouriteService.DeleteOnPlace(ctx, like)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.ServiceError, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, "success")
+}
+
+// DeleteOnRoute @Summary Delete liked on route
+// @Tags favourite
+// @Accept  json
+// @Produce  json
+// @Param delete body models.Like true "delete data"
+// @Success 200 {object} string "Successfully!"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /favourite/like_route [delete]
+func (r FavouriteHandler) DeleteOnRoute(c *gin.Context) {
+	ctx, span := r.tracer.Start(c.Request.Context(), DeleteOnRoute)
+	defer span.End()
+
+	var like models.Like
+
+	if err := c.ShouldBindJSON(&like); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	span.AddEvent(tracing.CallToService)
+	err := r.FavouriteService.DeleteOnRoute(ctx, like)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.ServiceError, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, "success")
+}

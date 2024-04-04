@@ -290,6 +290,37 @@ paths:
       tags:
       - favourite
   /favourite/like_place:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: delete data
+        in: body
+        name: delete
+        required: true
+        schema:
+          $ref: '#/definitions/models.Like'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully!
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - favourite
     post:
       consumes:
       - application/json
@@ -322,6 +353,37 @@ paths:
       tags:
       - favourite
   /favourite/like_route:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: delete data
+        in: body
+        name: delete
+        required: true
+        schema:
+          $ref: '#/definitions/models.Like'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully!
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - favourite
     post:
       consumes:
       - application/json
