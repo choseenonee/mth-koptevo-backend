@@ -8,16 +8,17 @@ import (
 )
 
 const (
-	DBName       = "DB_NAME"
-	DBUser       = "DB_USER"
-	DBPassword   = "DB_PASSWORD"
-	DBPort       = "DB_PORT"
-	DBHost       = "DB_HOST"
-	JWTExpire    = "JWT_EXPIRE"
-	Secret       = "SECRET"
-	JaegerHost   = "JAEGER_HOST"
-	JaegerPort   = "JAEGER_PORT"
-	PlacesOnPage = "PLACES_ON_PAGE"
+	DBName           = "DB_NAME"
+	DBUser           = "DB_USER"
+	DBPassword       = "DB_PASSWORD"
+	DBPort           = "DB_PORT"
+	DBHost           = "DB_HOST"
+	JWTExpire        = "JWT_EXPIRE"
+	Secret           = "SECRET"
+	JaegerHost       = "JAEGER_HOST"
+	JaegerPort       = "JAEGER_PORT"
+	PlacesOnPage     = "PLACES_ON_PAGE"
+	CompanionsOnPage = "COMPANIONS_ON_PAGE"
 )
 
 func InitConfig() {

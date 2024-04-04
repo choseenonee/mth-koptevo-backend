@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/jmoiron/sqlx"
+	"github.com/spf13/viper"
 	"mth/internal/models"
+	"mth/pkg/config"
 	"mth/pkg/customerr"
 )
 
@@ -125,11 +128,17 @@ func (c companionsRepo) GetByUser(ctx context.Context, userID int) ([]models.Com
 
 	for placeRows.Next() {
 		var place models.CompanionsPlace
+		var propertiesRaw []byte
 
 		err := placeRows.Scan(&place.DateFrom, &place.DateTo, &place.PlaceName,
-			&place.PlaceProperties, &place.CityName, &place.UserID, &place.PlaceID, &place.ID)
+			&propertiesRaw, &place.CityName, &place.UserID, &place.PlaceID, &place.ID)
 		if err != nil {
 			return []models.CompanionsPlace{}, []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		err = json.Unmarshal(propertiesRaw, &place.PlaceProperties)
+		if err != nil {
+			return []models.CompanionsPlace{}, []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 		}
 
 		places = append(places, place)
@@ -141,9 +150,9 @@ func (c companionsRepo) GetByUser(ctx context.Context, userID int) ([]models.Com
 	}
 
 	routeQuery := `SELECT c.date_from, c.date_to, p.name, p.properties, city.name, u.id, p.id, c.id
-					FROM companions_places c
+					FROM companions_routes c
 					LEFT JOIN users u ON c.user_id = u.id
-					LEFT JOIN places p ON c.place_id = p.id
+					LEFT JOIN places p ON c.route_id = p.id
 					LEFT JOIN city ON p.city_id = city.id
 					WHERE u.id = $1`
 
@@ -156,9 +165,15 @@ func (c companionsRepo) GetByUser(ctx context.Context, userID int) ([]models.Com
 
 	for routeRows.Next() {
 		var route models.CompanionsRoute
+		var propertiesRaw []byte
 
 		err := routeRows.Scan(&route.DateFrom, &route.DateTo, &route.RouteName,
-			&route.RouteProperties, &route.CityName, &route.UserID, &route.RouteID, &route.ID)
+			&propertiesRaw, &route.CityName, &route.UserID, &route.RouteID, &route.ID)
+		if err != nil {
+			return []models.CompanionsPlace{}, []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		err = json.Unmarshal(propertiesRaw, &route.RouteProperties)
 		if err != nil {
 			return []models.CompanionsPlace{}, []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 		}
@@ -183,20 +198,33 @@ func (c companionsRepo) GetCompanionsPlace(ctx context.Context, filters models.C
 					LEFT JOIN places p ON c.place_id = p.id
 					LEFT JOIN city ON p.city_id = city.id
 					WHERE NOT (c.date_from > $2 OR c.date_to < $1) AND c.place_id = $3
-					OFFSET $3 LIMIT $5;`
+					OFFSET $4 LIMIT $5;`
 
-	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.EntityID, filters.Page, 10)
+	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.EntityID,
+		filters.Page*viper.GetInt(config.CompanionsOnPage), viper.GetInt(config.CompanionsOnPage))
 	if err != nil {
 		return []models.CompanionsPlace{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.QueryErr, Err: err})
 	}
 
 	for rows.Next() {
 		var companion models.CompanionsPlace
+		var propertiesRaw []byte
+		var userPropertiesRaw []byte
 
-		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &companion.UserProperties, &companion.PlaceName,
-			&companion.PlaceProperties, &companion.CityName, &companion.UserID, &companion.PlaceID, &companion.ID)
+		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &userPropertiesRaw, &companion.PlaceName,
+			&propertiesRaw, &companion.CityName, &companion.UserID, &companion.PlaceID, &companion.ID)
 		if err != nil {
 			return []models.CompanionsPlace{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		err = json.Unmarshal(userPropertiesRaw, &companion.UserProperties)
+		if err != nil {
+			return []models.CompanionsPlace{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		}
+
+		err = json.Unmarshal(propertiesRaw, &companion.PlaceProperties)
+		if err != nil {
+			return []models.CompanionsPlace{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 		}
 
 		companions = append(companions, companion)
@@ -214,20 +242,33 @@ func (c companionsRepo) GetCompanionsRoute(ctx context.Context, filters models.C
 					LEFT JOIN routes r ON c.route_id = r.id
 					LEFT JOIN city ON r.city_id = city.id
 					WHERE NOT (c.date_from > $2 OR c.date_to < $1) AND c.route_id = $3
-					OFFSET $3 LIMIT $5;`
+					OFFSET $4 LIMIT $5;`
 
-	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.EntityID, filters.Page, 10)
+	rows, err := c.db.QueryxContext(ctx, selectQuery, filters.DateFrom, filters.DateTo, filters.EntityID,
+		filters.Page*viper.GetInt(config.CompanionsOnPage), viper.GetInt(config.CompanionsOnPage))
 	if err != nil {
 		return []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.QueryErr, Err: err})
 	}
 
 	for rows.Next() {
 		var companion models.CompanionsRoute
+		var userPropertiesRaw []byte
+		var routePropertiesRaw []byte
 
-		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &companion.UserProperties, &companion.RouteName,
-			&companion.Price, &companion.RouteProperties, &companion.CityName, &companion.UserID, &companion.RouteID, &companion.ID)
+		err := rows.Scan(&companion.DateFrom, &companion.DateTo, &userPropertiesRaw, &companion.RouteName,
+			&companion.Price, &routePropertiesRaw, &companion.CityName, &companion.UserID, &companion.RouteID, &companion.ID)
 		if err != nil {
 			return []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		err = json.Unmarshal(userPropertiesRaw, &companion.UserProperties)
+		if err != nil {
+			return []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		}
+
+		err = json.Unmarshal(routePropertiesRaw, &companion.RouteProperties)
+		if err != nil {
+			return []models.CompanionsRoute{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 		}
 
 		companions = append(companions, companion)
