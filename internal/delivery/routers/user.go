@@ -16,14 +16,16 @@ func RegisterUserRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tra
 	userRepo := repository.InitUserRepo(db)
 	favouriteRepo := repository.InitFavouriteRepo(db)
 	routeRepo := repository.InitRouteRepo(db)
+	placeRepo := repository.InitPlaceRepo(db)
 
-	userService := service.InitUserService(userRepo, logger, favouriteRepo, routeRepo)
+	userService := service.InitUserService(userRepo, logger, favouriteRepo, routeRepo, placeRepo)
 	userHandler := handlers.InitUserHandler(userService, tracer)
 
 	userRouter.POST("/check_in", userHandler.CheckIn)
 	userRouter.POST("/validate", userHandler.ValidateHash)
 	userRouter.PUT("/login", userHandler.GetUser)
 	userRouter.PUT("/register", userHandler.CreateUser)
+	userRouter.GET("/checked_in", userHandler.GetCheckedPlaces)
 
 	return userRouter
 }

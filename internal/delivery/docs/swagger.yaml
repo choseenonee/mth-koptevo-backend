@@ -1379,6 +1379,39 @@ paths:
             type: object
       tags:
       - user
+  /user/checked_in:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: userID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: places
+          schema:
+            items:
+              $ref: '#/definitions/models.Place'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
   /user/login:
     put:
       consumes:

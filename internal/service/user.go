@@ -19,15 +19,18 @@ type userService struct {
 	userRepo      repository.User
 	favouriteRepo repository.Favourite
 	routeRepo     repository.Route
+	placeRepo     repository.Place
 	logger        *log.Logs
 	hashes        []string
 }
 
-func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite, routeRepo repository.Route) User {
+func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite,
+	routeRepo repository.Route, placeRepo repository.Place) User {
 	return &userService{
 		userRepo:      userRepo,
 		favouriteRepo: favouriteRepo,
 		routeRepo:     routeRepo,
+		placeRepo:     placeRepo,
 		logger:        logger,
 		hashes:        make([]string, 1),
 	}
@@ -216,4 +219,25 @@ func (u *userService) CreateUser(ctx context.Context, userCreate models.UserCrea
 	}
 
 	return id, nil
+}
+
+func (u *userService) GetCheckedPlaces(ctx context.Context, userID int) ([]models.Place, error) {
+	placeIDs, err := u.userRepo.GetCheckedInPlaceIDs(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return []models.Place{}, err
+	}
+
+	var places []models.Place
+	for _, placeID := range placeIDs {
+		place, err := u.placeRepo.GetByID(ctx, placeID)
+		if err != nil {
+			u.logger.Error(err.Error())
+			return []models.Place{}, err
+		}
+
+		places = append(places, place)
+	}
+
+	return places, nil
 }
