@@ -17,28 +17,28 @@ func InitPlaces(tx *sqlx.Tx) {
 
 	createPlaceQuery := `INSERT INTO places (city_id, district_id, properties, name, variety) VALUES ($1, $2, $3, $4, $5);`
 
-	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("popa"),
+	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("[1]"),
 		"first", "restik")
 	if err != nil {
 		_ = tx.Rollback()
 		panic(fmt.Errorf("error on creating place 1 %v", err))
 	}
 
-	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("popa"),
+	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("[1]"),
 		"second", "restik")
 	if err != nil {
 		_ = tx.Rollback()
 		panic(fmt.Errorf("error on creating place 2 %v", err))
 	}
 
-	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("popa"),
+	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("[1]"),
 		"third", "restik")
 	if err != nil {
 		_ = tx.Rollback()
 		panic(fmt.Errorf("error on creating place 3 %v", err))
 	}
 
-	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("popa"),
+	_, err = tx.ExecContext(context.TODO(), createPlaceQuery, 1, 1, []byte("[1]"),
 		"fourth", "restik")
 	if err != nil {
 		_ = tx.Rollback()
@@ -46,11 +46,15 @@ func InitPlaces(tx *sqlx.Tx) {
 	}
 }
 
+func InitUserLikes(tx *sqlx.Tx) {
+
+}
+
 func InitRoutes(tx *sqlx.Tx) {
 	var err error
 	createRouteQuery := `INSERT INTO routes (city_id, price, name, properties) VALUES ($1, $2, $3, $4) RETURNING id;`
 
-	_, err = tx.ExecContext(context.TODO(), createRouteQuery, 1, 100, "first", []byte("route first"))
+	_, err = tx.ExecContext(context.TODO(), createRouteQuery, 1, 100, "first", []byte("[1]"))
 	if err != nil {
 		_ = tx.Rollback()
 		panic(fmt.Errorf("error on creating route 1 %v", err))
@@ -70,7 +74,7 @@ func InitRoutes(tx *sqlx.Tx) {
 		count++
 	}
 
-	_, err = tx.ExecContext(context.TODO(), createRouteQuery, 1, 222, "second", []byte("route second"))
+	_, err = tx.ExecContext(context.TODO(), createRouteQuery, 1, 222, "second", []byte("[1]"))
 	if err != nil {
 		_ = tx.Rollback()
 		panic(fmt.Errorf("error on creating route 2 %v", err))
@@ -151,10 +155,10 @@ func testCaseStartRoute(service User, repo repository.User) {
 	fmt.Println(routeLogs)
 	fmt.Println(routeLogsNew)
 
-	cipher, _ = vernamCipher("3 sdinasdiahsduia")
+	cipher, _ = vernamCipher("4 sdinasdiahsduia")
 	_, err = service.CheckIn(context.TODO(), cipher, 1)
 	if err != nil {
-		panic(fmt.Errorf("error on checkining place 3, %v", err))
+		panic(fmt.Errorf("error on checkining place 4, %v", err))
 	}
 
 	routeLogsNew, err = repo.GetRouteLogs(context.TODO(), 1)
@@ -165,7 +169,7 @@ func testCaseStartRoute(service User, repo repository.User) {
 	fmt.Println(routeLogsNew)
 }
 
-func TestUserService_(t *testing.T) {
+func TestUserService_CheckINLogs(t *testing.T) {
 	config.InitConfig()
 	logger, _, _ := log.InitLogger()
 	db := database.GetDB()
@@ -174,13 +178,12 @@ func TestUserService_(t *testing.T) {
 	favouriteRepo := repository.InitFavouriteRepo(db)
 	routeRepo := repository.InitRouteRepo(db)
 
-	tx, err := db.Beginx()
-	if err != nil {
-		panic(fmt.Errorf("error on beginx, %v", err))
-	}
-
-	InitPlaces(tx)
-	InitRoutes(tx)
+	//tx, err := db.Beginx()
+	//if err != nil {
+	//	panic(fmt.Errorf("error on beginx, %v", err))
+	//}
+	//InitPlaces(tx)
+	//InitRoutes(tx)
 
 	userService := InitUserService(userRepo, logger, favouriteRepo, routeRepo)
 

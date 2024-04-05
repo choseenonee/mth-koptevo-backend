@@ -124,7 +124,7 @@ func (u userRepo) StartRoute(ctx context.Context, routeLog models.RouteLogWithOn
 }
 
 func (u userRepo) EndRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error {
-	query := `INSERT INTO users_route_logs (user_id, route_id, end_time) VALUES ($1, $2, $3);`
+	query := `UPDATE users_route_logs SET end_time = $3 WHERE user_id = $1 AND route_id = $2;`
 	return u.createRouteLog(ctx, query, routeLog)
 }
 
