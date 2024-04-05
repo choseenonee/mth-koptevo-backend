@@ -20,17 +20,19 @@ type userService struct {
 	favouriteRepo repository.Favourite
 	routeRepo     repository.Route
 	placeRepo     repository.Place
+	tripRepo      repository.Trip
 	logger        *log.Logs
 	hashes        []string
 }
 
 func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite,
-	routeRepo repository.Route, placeRepo repository.Place) User {
+	routeRepo repository.Route, placeRepo repository.Place, tripRepo repository.Trip) User {
 	return &userService{
 		userRepo:      userRepo,
 		favouriteRepo: favouriteRepo,
 		routeRepo:     routeRepo,
 		placeRepo:     placeRepo,
+		tripRepo:      tripRepo,
 		logger:        logger,
 		hashes:        make([]string, 1),
 	}
@@ -111,6 +113,18 @@ func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID 
 	}
 
 	// TODO: routeIDs = append(u.TripRepo.GetRoutesByUser)
+
+	userTrips, err := u.tripRepo.GetTripsByUser(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	for _, userTrip := range userTrips {
+		for _, userTripRoute := range userTrip.Routes {
+			routeIDs = append(routeIDs, userTripRoute.EntityID)
+		}
+	}
 
 	for _, routeID := range routeIDs {
 		routeRaw, err := u.routeRepo.GetByID(ctx, routeID)
