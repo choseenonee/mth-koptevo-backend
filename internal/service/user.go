@@ -110,6 +110,8 @@ func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID 
 		return err
 	}
 
+	// TODO: routeIDs = append(u.TripRepo.GetRoutesByUser)
+
 	for _, routeID := range routeIDs {
 		routeRaw, err := u.routeRepo.GetByID(ctx, routeID)
 		if err != nil {
