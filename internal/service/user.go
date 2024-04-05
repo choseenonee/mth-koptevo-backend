@@ -241,3 +241,23 @@ func (u *userService) GetCheckedPlaces(ctx context.Context, userID int) ([]model
 
 	return places, nil
 }
+
+func (u *userService) GetProperties(ctx context.Context, userID int) (interface{}, error) {
+	properties, err := u.userRepo.GetProperties(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return nil, err
+	}
+
+	return properties, nil
+}
+
+func (u *userService) UpdateProperties(ctx context.Context, userID int, properties interface{}) error {
+	err := u.userRepo.UpdateProperties(ctx, userID, properties)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	return nil
+}
