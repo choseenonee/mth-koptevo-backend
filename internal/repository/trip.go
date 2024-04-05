@@ -208,7 +208,7 @@ func (t tripRepo) AddRoute(ctx context.Context, tripID, routeID, day, position i
 
 	query := `INSERT INTO trip_routes (trip_id, day, position, route_id) VALUES ($1, $2, $3, $4)`
 
-	_, err = tx.ExecContext(ctx, query, tripID, routeID, day, position)
+	_, err = tx.ExecContext(ctx, query, tripID, day, position, routeID)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return customerr.ErrNormalizer(
@@ -235,7 +235,7 @@ func (t tripRepo) AddPlace(ctx context.Context, tripID, placeID, day, position i
 
 	query := `INSERT INTO trip_places (trip_id, day, position, place_id) VALUES ($1, $2, $3, $4)`
 
-	_, err = tx.ExecContext(ctx, query, tripID, placeID, day, position)
+	_, err = tx.ExecContext(ctx, query, tripID, day, position, placeID)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return customerr.ErrNormalizer(

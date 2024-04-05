@@ -146,7 +146,7 @@ func (r TripHandler) GetByUser(c *gin.Context) {
 // @Param data body swagger.TripAdd true "data"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /trip/add/route [put]
+// @Router /trip/route/add [put]
 func (r TripHandler) AddRoute(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), "Add route to trip")
 	defer span.End()
@@ -183,7 +183,7 @@ func (r TripHandler) AddRoute(c *gin.Context) {
 // @Param data body swagger.TripAdd true "data"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /trip/add/place [put]
+// @Router /trip/place/add [put]
 func (r TripHandler) AddPlace(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), "Add place to trip")
 	defer span.End()
@@ -220,7 +220,7 @@ func (r TripHandler) AddPlace(c *gin.Context) {
 // @Param data body swagger.TripChangeDay true "data"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /trip/change/route/day [put]
+// @Router /trip/route/change/day [put]
 func (r TripHandler) ChangeRouteDay(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), "Change route day in trip")
 	defer span.End()
@@ -257,7 +257,7 @@ func (r TripHandler) ChangeRouteDay(c *gin.Context) {
 // @Param data body swagger.TripChangeDay true "data"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /trip/change/place/day [put]
+// @Router /trip/place/change/day [put]
 func (r TripHandler) ChangePlaceDay(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), "Change place day in trip")
 	defer span.End()
@@ -294,7 +294,7 @@ func (r TripHandler) ChangePlaceDay(c *gin.Context) {
 // @Param data body swagger.TripChangePosition true "data"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /trip/change/route/position [put]
+// @Router /trip/route/change/position [put]
 func (r TripHandler) ChangeRoutePosition(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), "Change route position in trip")
 	defer span.End()
@@ -331,7 +331,7 @@ func (r TripHandler) ChangeRoutePosition(c *gin.Context) {
 // @Param data body swagger.TripChangePosition true "data"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
-// @Router /trip/change/place/position [put]
+// @Router /trip/place/change/position [put]
 func (r TripHandler) ChangePlacePosition(c *gin.Context) {
 	ctx, span := r.tracer.Start(c.Request.Context(), "Change place position in trip")
 	defer span.End()
