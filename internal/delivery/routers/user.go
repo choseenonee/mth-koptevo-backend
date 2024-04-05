@@ -26,6 +26,8 @@ func RegisterUserRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tra
 	userRouter.PUT("/login", userHandler.GetUser)
 	userRouter.PUT("/register", userHandler.CreateUser)
 	userRouter.GET("/checked_in", userHandler.GetCheckedPlaces)
+	userRouter.GET("/properties", userHandler.GetMyProperties)
+	userRouter.PUT("/update_properties", userHandler.UpdateProperties)
 
 	return userRouter
 }

@@ -14,7 +14,7 @@ const (
 	RowsErr        = "rows error: %v"
 	QueryErr       = "query error: %v"
 
-	CountErr = "expected to delete 1 record, got %d"
+	CountErr = "expected to delete 1 record, got %v"
 	BindErr  = "bind properties to json err: %v"
 
 	QueryBuild = "query build err: %v"

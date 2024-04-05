@@ -236,3 +236,91 @@ func (u UserHandler) GetCheckedPlaces(c *gin.Context) {
 
 	c.JSON(http.StatusOK, places)
 }
+
+// GetMyProperties @Summary Получить properties
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id query string true "userID"
+// @Success 200 {object} string "user properties json"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/properties [get]
+func (u UserHandler) GetMyProperties(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "Get user properties")
+	defer span.End()
+
+	idRaw := c.Query("id")
+	userID, err := strconv.Atoi(idRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	properties, err := u.userService.GetProperties(ctx, userID)
+	if err != nil {
+		var status int
+		if strings.Contains(err.Error(), "no rows in result set") {
+			status = http.StatusUnauthorized
+		} else {
+			status = http.StatusInternalServerError
+		}
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, properties)
+}
+
+// UpdateProperties @Summary Получить properties
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param data body swagger.UserUpdate true "user data"
+// @Success 200 {object} string "user properties json"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/update_properties [put]
+func (u UserHandler) UpdateProperties(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "Update user properties")
+	defer span.End()
+
+	var user swagger.UserUpdate
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err := u.userService.UpdateProperties(ctx, user.ID, user.Properties)
+	if err != nil {
+		var status int
+		if strings.Contains(err.Error(), "user not found") {
+			status = http.StatusUnauthorized
+		} else {
+			status = http.StatusInternalServerError
+		}
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

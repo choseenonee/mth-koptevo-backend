@@ -321,6 +321,12 @@ definitions:
       password:
         type: string
     type: object
+  swagger.UserUpdate:
+    properties:
+      id:
+        type: integer
+      properties: {}
+    type: object
 info:
   contact: {}
 paths:
@@ -1444,6 +1450,37 @@ paths:
             type: object
       tags:
       - user
+  /user/properties:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: userID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user properties json
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
   /user/register:
     put:
       consumes:
@@ -1462,6 +1499,38 @@ paths:
           description: user ID
           schema:
             type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/update_properties:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: user data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.UserUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user properties json
+          schema:
+            type: string
         "400":
           description: Invalid input
           schema:

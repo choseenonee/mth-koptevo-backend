@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/guregu/null/v5"
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
@@ -194,7 +195,7 @@ func (u userRepo) GetProperties(ctx context.Context, userID int) (interface{}, e
 
 	var propertiesRaw []byte
 	var properties interface{}
-	err := u.db.QueryRowContext(ctx, query, userID).Scan(&userID, &propertiesRaw)
+	err := u.db.QueryRowContext(ctx, query, userID).Scan(&propertiesRaw)
 	if err != nil {
 		return nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 	}
@@ -210,14 +211,43 @@ func (u userRepo) GetProperties(ctx context.Context, userID int) (interface{}, e
 func (u userRepo) UpdateProperties(ctx context.Context, userID int, properties interface{}) error {
 	query := `UPDATE users SET properties = $2 WHERE id = $1`
 
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
 	propertiesRaw, err := json.Marshal(properties)
 	if err != nil {
 		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 	}
 
-	err = u.db.QueryRowContext(ctx, query, userID).Scan(&userID, &propertiesRaw)
+	res, err := tx.ExecContext(ctx, query, userID, propertiesRaw)
 	if err != nil {
-		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, user not found", count)})
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
 	}
 
 	return nil
