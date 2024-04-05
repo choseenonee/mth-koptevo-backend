@@ -128,7 +128,7 @@ func (u userRepo) EndRoute(ctx context.Context, routeLog models.RouteLogWithOneT
 	return u.createRouteLog(ctx, query, routeLog)
 }
 
-func (u userRepo) GetCheckedInPlaces(ctx context.Context, userID int) ([]int, error) {
+func (u userRepo) GetCheckedInPlaceIDs(ctx context.Context, userID int) ([]int, error) {
 	query := `SELECT place_id FROM users_place_checkin WHERE user_id = $1`
 
 	rows, err := u.db.QueryContext(ctx, query, userID)

@@ -121,7 +121,7 @@ func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID 
 				TimeStamp: time.Now(),
 			}
 
-			placeIDs, err := u.userRepo.GetCheckedInPlaces(ctx, userID)
+			placeIDs, err := u.userRepo.GetCheckedInPlaceIDs(ctx, userID)
 			if err != nil {
 				u.logger.Error(err.Error())
 				return err
