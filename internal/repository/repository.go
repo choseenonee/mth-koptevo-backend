@@ -77,8 +77,8 @@ type User interface {
 
 type Trip interface {
 	Create(ctx context.Context, tripCreate models.TripCreate) (int, error)
-	GetTripByID(ctx context.Context, tripID int) (models.TripRaw, error)
-	GetTripsByUser(ctx context.Context, userID int) ([]models.TripRaw, error)
+	GetTripByID(ctx context.Context, tripID int) (models.Trip, error)
+	GetTripsByUser(ctx context.Context, userID int) ([]models.Trip, error)
 	AddRoute(ctx context.Context, tripID, routeID, day, position int) error
 	AddPlace(ctx context.Context, tripID, placeID, day, position int) error
 	ChangeRouteDay(ctx context.Context, tripID, placeID, day int) error

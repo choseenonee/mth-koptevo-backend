@@ -22,6 +22,7 @@ type TripCreate struct {
 }
 
 type TripRaw struct {
+	ID       int `json:"id"`
 	PlaceIDs []int
 	RouteIDs []int
 	TripBase
