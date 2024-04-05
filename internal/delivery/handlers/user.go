@@ -144,12 +144,15 @@ func (u UserHandler) GetUser(c *gin.Context) {
 		)
 		span.SetStatus(codes.Error, err.Error())
 
-		if strings.Contains(err.Error(), "user password isn't correct") {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-			return
+		var status int
+
+		status = http.StatusInternalServerError
+
+		if strings.Contains(err.Error(), "user password isn't correct") || strings.Contains(err.Error(), "no rows in result set") {
+			status = http.StatusUnauthorized
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(status, gin.H{"error": err.Error()})
 		return
 	}
 
