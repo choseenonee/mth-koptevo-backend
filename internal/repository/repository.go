@@ -68,6 +68,8 @@ type Favourite interface {
 // TODO: get checked in place IDs
 type User interface {
 	GetUser(ctx context.Context, login string) (int, string, error)
+	GetProperties(ctx context.Context, userID int) (interface{}, error)
+	UpdateProperties(ctx context.Context, userID int, properties interface{}) error
 	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
 	CheckInPlace(ctx context.Context, userID, placeID int) error
 	GetCheckedInPlaceIDs(ctx context.Context, userID int) ([]int, error)

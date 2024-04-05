@@ -188,3 +188,37 @@ func (u userRepo) GetRouteLogs(ctx context.Context, userID int) ([]models.RouteL
 
 	return routeLogs, nil
 }
+
+func (u userRepo) GetProperties(ctx context.Context, userID int) (interface{}, error) {
+	query := `SELECT properties FROM users WHERE id = $1`
+
+	var propertiesRaw []byte
+	var properties interface{}
+	err := u.db.QueryRowContext(ctx, query, userID).Scan(&userID, &propertiesRaw)
+	if err != nil {
+		return nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	err = json.Unmarshal(propertiesRaw, &properties)
+	if err != nil {
+		return nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+	}
+
+	return properties, nil
+}
+
+func (u userRepo) UpdateProperties(ctx context.Context, userID int, properties interface{}) error {
+	query := `UPDATE users SET properties = $2 WHERE id = $1`
+
+	propertiesRaw, err := json.Marshal(properties)
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+	}
+
+	err = u.db.QueryRowContext(ctx, query, userID).Scan(&userID, &propertiesRaw)
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	return nil
+}
