@@ -68,4 +68,8 @@ type User interface {
 	GetUser(ctx context.Context, login string) (int, string, error)
 	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
 	CheckInPlace(ctx context.Context, userID, placeID int) error
+	GetCheckedInPlaces(ctx context.Context, userID int) ([]int, error)
+	GetRouteLogs(ctx context.Context, userID int) ([]models.RouteLog, error)
+	StartRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error
+	EndRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"github.com/guregu/null/v5"
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
@@ -90,4 +91,100 @@ func (u userRepo) CreateUser(ctx context.Context, userCreate models.UserCreate) 
 	}
 
 	return createdID, nil
+}
+
+func (u userRepo) createRouteLog(ctx context.Context, query string, routeLog models.RouteLogWithOneTime) error {
+	tx, err := u.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	_, err = tx.ExecContext(ctx, query, routeLog.UserID, routeLog.RouteID, routeLog.TimeStamp)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
+}
+
+func (u userRepo) StartRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error {
+	query := `INSERT INTO users_route_logs (user_id, route_id, start_time) VALUES ($1, $2, $3);`
+	return u.createRouteLog(ctx, query, routeLog)
+}
+
+func (u userRepo) EndRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error {
+	query := `INSERT INTO users_route_logs (user_id, route_id, end_time) VALUES ($1, $2, $3);`
+	return u.createRouteLog(ctx, query, routeLog)
+}
+
+func (u userRepo) GetCheckedInPlaces(ctx context.Context, userID int) ([]int, error) {
+	query := `SELECT place_id FROM users_place_checkin WHERE user_id = $1`
+
+	rows, err := u.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return []int{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	var placeIDs []int
+	for rows.Next() {
+		var placeID int
+
+		err = rows.Scan(&placeID)
+		if err != nil {
+			return []int{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		placeIDs = append(placeIDs, placeID)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []int{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.RowsErr, Err: err})
+	}
+
+	return placeIDs, nil
+}
+
+func (u userRepo) GetRouteLogs(ctx context.Context, userID int) ([]models.RouteLog, error) {
+	query := `SELECT user_id, route_id, start_time, end_time FROM users_route_logs WHERE user_id = $1`
+
+	rows, err := u.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return []models.RouteLog{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	var routeLogs []models.RouteLog
+	for rows.Next() {
+		var routeLog models.RouteLog
+		var endTime null.Time
+
+		err = rows.Scan(&routeLog.UserID, &routeLog.RouteId, &routeLog.StartTime, &endTime)
+		if err != nil {
+			return []models.RouteLog{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		}
+
+		if endTime.Valid {
+			routeLog.EndTime = endTime.Time
+		}
+
+		routeLogs = append(routeLogs, routeLog)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return []models.RouteLog{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.RowsErr, Err: err})
+	}
+
+	return routeLogs, nil
 }

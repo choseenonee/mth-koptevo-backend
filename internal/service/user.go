@@ -12,19 +12,24 @@ import (
 	"mth/pkg/log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type userService struct {
-	userRepo repository.User
-	logger   *log.Logs
-	hashes   []string
+	userRepo      repository.User
+	favouriteRepo repository.Favourite
+	routeRepo     repository.Route
+	logger        *log.Logs
+	hashes        []string
 }
 
-func InitUserService(userRepo repository.User, logger *log.Logs) User {
+func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite, routeRepo repository.Route) User {
 	return &userService{
-		userRepo: userRepo,
-		logger:   logger,
-		hashes:   make([]string, 1),
+		userRepo:      userRepo,
+		favouriteRepo: favouriteRepo,
+		routeRepo:     routeRepo,
+		logger:        logger,
+		hashes:        make([]string, 1),
 	}
 }
 
@@ -69,6 +74,81 @@ func validateHash(hash string, slice *[]string) bool {
 	return false
 }
 
+func contains(placeID int, places []models.PlaceIDWithPosition) bool {
+	for _, val := range places {
+		if placeID == val.PlaceID {
+			return true
+		}
+	}
+
+	return false
+}
+
+// TODO: следить что intersection верный
+func (u *userService) calculateCheckInsInRoute(places []models.PlaceIDWithPosition, placeIDs []int) int {
+	intersection := 0
+
+	for _, routePlace := range places {
+		for _, checkedInPlace := range placeIDs {
+			if checkedInPlace == routePlace.PlaceID {
+				intersection++
+			}
+		}
+	}
+
+	return intersection
+}
+
+// TODO: проверить начало маршрута, проверить конец маршрута, проверить что место в неск маршрутах юзера сразу
+func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID int) error {
+	_, routeIDs, err := u.favouriteRepo.GetLikedByUser(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	for _, routeID := range routeIDs {
+		routeRaw, err := u.routeRepo.GetByID(ctx, routeID)
+		if err != nil {
+			u.logger.Error(err.Error())
+			return err
+		}
+
+		if contains(placeID, routeRaw.PlaceIDsWithPosition) {
+			routeLog := models.RouteLogWithOneTime{
+				UserID:    userID,
+				RouteID:   routeID,
+				TimeStamp: time.Now(),
+			}
+
+			placeIDs, err := u.userRepo.GetCheckedInPlaces(ctx, userID)
+			if err != nil {
+				u.logger.Error(err.Error())
+				return err
+			}
+
+			intersection := u.calculateCheckInsInRoute(routeRaw.PlaceIDsWithPosition, placeIDs)
+
+			switch intersection {
+			case 1:
+				err = u.userRepo.StartRoute(ctx, routeLog)
+				if err != nil {
+					u.logger.Error(err.Error())
+					return err
+				}
+			case len(routeRaw.PlaceIDsWithPosition):
+				err = u.userRepo.EndRoute(ctx, routeLog)
+				if err != nil {
+					u.logger.Error(err.Error())
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (string, error) {
 	decodedString, err := vernamCipher(cipher)
 	if err != nil {
@@ -94,6 +174,12 @@ func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (s
 		if strings.Contains(err.Error(), "unique") {
 			return "", fmt.Errorf("пользователь уже чекинился в этом месте %v", err)
 		}
+		return "", err
+	}
+
+	err = u.updateRouteLogStatus(ctx, userID, placeID)
+	if err != nil {
+		u.logger.Error(err.Error())
 		return "", err
 	}
 
