@@ -64,8 +64,7 @@ type Favourite interface {
 	DeleteOnRoute(ctx context.Context, like models.Like) error
 }
 
-// TODO: из get route logs сделать позже get_chrono service
-// TODO: get checked in place IDs
+// User TODO: из get route logs сделать позже get_chrono service
 type User interface {
 	GetUser(ctx context.Context, login string) (int, string, error)
 	GetProperties(ctx context.Context, userID int) (interface{}, error)
@@ -76,4 +75,18 @@ type User interface {
 	GetRouteLogs(ctx context.Context, userID int) ([]models.RouteLog, error)
 	StartRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error
 	EndRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error
+}
+
+type Trip interface {
+	Create(ctx context.Context, tripCreate models.TripCreate) (int, error)
+	GetTripByID(ctx context.Context, tripID int) (models.Trip, error)
+	GetTripsByUser(ctx context.Context, userID int) ([]models.Trip, error)
+	AddRoute(ctx context.Context, tripID, routeID, day, position int) error
+	AddPlace(ctx context.Context, tripID, placeID, day, position int) error
+	ChangeRouteDay(ctx context.Context, tripID, routeID, day int) error
+	ChangePlaceDay(ctx context.Context, tripID, placeID, day int) error
+	ChangeRoutePosition(ctx context.Context, tripID, routeID, position int) error
+	ChangePlacePosition(ctx context.Context, tripID, placeID, position int) error
+	DeleteRoute(ctx context.Context, tripID, routeID int) error
+	DeletePlace(ctx context.Context, tripID, placeID int) error
 }

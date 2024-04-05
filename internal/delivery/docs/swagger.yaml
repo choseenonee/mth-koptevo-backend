@@ -82,6 +82,15 @@ definitions:
         type: string
       properties: {}
     type: object
+  models.EntityWithDayAndPosition:
+    properties:
+      day:
+        type: integer
+      id:
+        type: integer
+      position:
+        type: integer
+    type: object
   models.Like:
     properties:
       entity_id:
@@ -267,6 +276,44 @@ definitions:
       name:
         type: string
     type: object
+  models.Trip:
+    properties:
+      Routes:
+        items:
+          $ref: '#/definitions/models.EntityWithDayAndPosition'
+        type: array
+      date_end:
+        type: string
+      date_start:
+        type: string
+      id:
+        type: integer
+      places:
+        items:
+          $ref: '#/definitions/models.EntityWithDayAndPosition'
+        type: array
+      properties: {}
+      user_id:
+        type: integer
+    type: object
+  models.TripCreate:
+    properties:
+      Routes:
+        items:
+          $ref: '#/definitions/models.EntityWithDayAndPosition'
+        type: array
+      date_end:
+        type: string
+      date_start:
+        type: string
+      places:
+        items:
+          $ref: '#/definitions/models.EntityWithDayAndPosition'
+        type: array
+      properties: {}
+      user_id:
+        type: integer
+    type: object
   models.UserCreate:
     properties:
       login:
@@ -313,6 +360,35 @@ definitions:
         items:
           $ref: '#/definitions/models.RouteReview'
         type: array
+    type: object
+  swagger.TripAdd:
+    properties:
+      day:
+        type: integer
+      entity_id:
+        type: integer
+      position:
+        type: integer
+      trip_id:
+        type: integer
+    type: object
+  swagger.TripChangeDay:
+    properties:
+      day:
+        type: integer
+      entity_id:
+        type: integer
+      trip_id:
+        type: integer
+    type: object
+  swagger.TripChangePosition:
+    properties:
+      entity_id:
+        type: integer
+      position:
+        type: integer
+      trip_id:
+        type: integer
     type: object
   swagger.User:
     properties:
@@ -1349,6 +1425,334 @@ paths:
             type: object
       tags:
       - tag
+  /trip/by_id:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: trip id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created trip with id
+          schema:
+            $ref: '#/definitions/models.Trip'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/by_user_id:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created trip with id
+          schema:
+            items:
+              $ref: '#/definitions/models.Trip'
+            type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/create:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: trip
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.TripCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully created trip with id
+          schema:
+            type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/place:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: trip id
+        in: query
+        name: trip_id
+        required: true
+        type: integer
+      - description: place id
+        in: query
+        name: place_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/place/add:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TripAdd'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/place/change/day:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TripChangeDay'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/place/change/position:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TripChangePosition'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/route:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: trip id
+        in: query
+        name: trip_id
+        required: true
+        type: integer
+      - description: route id
+        in: query
+        name: route_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/route/add:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TripAdd'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/route/change/day:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TripChangeDay'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
+  /trip/route/change/position:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/swagger.TripChangePosition'
+      produces:
+      - application/json
+      responses:
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - trip
   /user/check_in:
     post:
       consumes:

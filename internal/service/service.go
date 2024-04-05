@@ -74,3 +74,17 @@ type User interface {
 	ValidateHash(ctx context.Context, hash string) bool
 	GetCheckedPlaces(ctx context.Context, userID int) ([]models.Place, error)
 }
+
+type Trip interface {
+	Create(ctx context.Context, tripCreate models.TripCreate) (int, error)
+	GetTripByID(ctx context.Context, tripID int) (models.Trip, error)
+	GetTripsByUser(ctx context.Context, userID int) ([]models.Trip, error)
+	AddRoute(ctx context.Context, tripID, routeID, day, position int) error
+	AddPlace(ctx context.Context, tripID, placeID, day, position int) error
+	ChangeRouteDay(ctx context.Context, tripID, routeID, day int) error
+	ChangePlaceDay(ctx context.Context, tripID, placeID, day int) error
+	ChangeRoutePosition(ctx context.Context, tripID, routeID, position int) error
+	ChangePlacePosition(ctx context.Context, tripID, placeID, position int) error
+	DeleteRoute(ctx context.Context, tripID, routeID int) error
+	DeletePlace(ctx context.Context, tripID, placeID int) error
+}
