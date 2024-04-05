@@ -386,7 +386,7 @@ func (r TripHandler) DeleteRoute(c *gin.Context) {
 	}
 
 	routeIDRaw := c.Query("route_id")
-	routeID, err := strconv.Atoi(tripIDRaw)
+	routeID, err := strconv.Atoi(routeIDRaw)
 	if err != nil {
 		span.RecordError(err, trace.WithAttributes(
 			attribute.String(tracing.BindType, err.Error())),
