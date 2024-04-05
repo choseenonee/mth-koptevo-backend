@@ -83,8 +83,8 @@ type Trip interface {
 	AddPlace(ctx context.Context, tripID, placeID, day, position int) error
 	ChangeRouteDay(ctx context.Context, tripID, placeID, day int) error
 	ChangePlaceDay(ctx context.Context, tripID, placeID, day int) error
-	ChangeRoutePosition(ctx context.Context, tripID, routeID int) error
-	ChangePlacePosition(ctx context.Context, tripID, placeID int) error
+	ChangeRoutePosition(ctx context.Context, tripID, routeID, position int) error
+	ChangePlacePosition(ctx context.Context, tripID, placeID, position int) error
 	DeleteRoute(ctx context.Context, tripID, routeID int) error
 	DeletePlace(ctx context.Context, tripID, placeID int) error
 }

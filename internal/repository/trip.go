@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
@@ -200,41 +201,289 @@ func (t tripRepo) GetTripsByUser(ctx context.Context, userID int) ([]models.Trip
 }
 
 func (t tripRepo) AddRoute(ctx context.Context, tripID, routeID, day, position int) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `INSERT INTO trip_routes (trip_id, day, position, route_id) VALUES ($1, $2, $3, $4)`
+
+	_, err = tx.ExecContext(ctx, query, tripID, routeID, day, position)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
 func (t tripRepo) AddPlace(ctx context.Context, tripID, placeID, day, position int) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `INSERT INTO trip_places (trip_id, day, position, place_id) VALUES ($1, $2, $3, $4)`
+
+	_, err = tx.ExecContext(ctx, query, tripID, placeID, day, position)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
-func (t tripRepo) ChangeRouteDay(ctx context.Context, tripID, placeID, day int) error {
-	//TODO implement me
-	panic("implement me")
+func (t tripRepo) ChangeRouteDay(ctx context.Context, tripID, routeID, day int) error {
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `UPDATE trip_routes SET day = $3 WHERE trip_id = $1 AND route_id = $2`
+
+	res, err := tx.ExecContext(ctx, query, tripID, routeID, day)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, not found trip with this routeID", count)})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
 func (t tripRepo) ChangePlaceDay(ctx context.Context, tripID, placeID, day int) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `UPDATE trip_places SET day = $3 WHERE trip_id = $1 AND place_id = $2`
+
+	res, err := tx.ExecContext(ctx, query, tripID, placeID, day)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, not found trip with this placeID", count)})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
-func (t tripRepo) ChangeRoutePosition(ctx context.Context, tripID, routeID int) error {
-	//TODO implement me
-	panic("implement me")
+func (t tripRepo) ChangeRoutePosition(ctx context.Context, tripID, routeID, position int) error {
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `UPDATE trip_routes SET position = $3 WHERE trip_id = $1 AND route_id = $2`
+
+	res, err := tx.ExecContext(ctx, query, tripID, routeID, position)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, not found trip with this routeID", count)})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
-func (t tripRepo) ChangePlacePosition(ctx context.Context, tripID, placeID int) error {
-	//TODO implement me
-	panic("implement me")
+func (t tripRepo) ChangePlacePosition(ctx context.Context, tripID, placeID, position int) error {
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `UPDATE trip_places SET position = $3 WHERE trip_id = $1 AND place_id = $2`
+
+	res, err := tx.ExecContext(ctx, query, tripID, placeID, position)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, not found trip with this placeID", count)})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
 func (t tripRepo) DeleteRoute(ctx context.Context, tripID, routeID int) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `DELETE FROM trip_routes WHERE trip_id = $1 AND route_id = $2`
+
+	res, err := tx.ExecContext(ctx, query, tripID, routeID)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, not found trip with this routeID", count)})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
 
 func (t tripRepo) DeletePlace(ctx context.Context, tripID, placeID int) error {
-	//TODO implement me
-	panic("implement me")
+	tx, err := t.db.Beginx()
+	if err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
+	}
+
+	query := `DELETE FROM trip_places WHERE trip_id = $1 AND place_id = $2`
+
+	res, err := tx.ExecContext(ctx, query, tripID, placeID)
+	if err != nil {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.ScanErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	count, err := res.RowsAffected()
+	if count != 1 {
+		if rbErr := tx.Rollback(); rbErr != nil {
+			return customerr.ErrNormalizer(
+				customerr.ErrorPair{Message: customerr.CountErr, Err: err},
+				customerr.ErrorPair{Message: customerr.RollbackErr, Err: rbErr},
+			)
+		}
+
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CountErr, Err: fmt.Errorf("%v, not found trip with this placeID", count)})
+	}
+
+	if err = tx.Commit(); err != nil {
+		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.CommitErr, Err: err})
+	}
+
+	return nil
 }
