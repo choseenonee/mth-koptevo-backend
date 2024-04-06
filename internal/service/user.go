@@ -21,18 +21,20 @@ type userService struct {
 	routeRepo     repository.Route
 	placeRepo     repository.Place
 	tripRepo      repository.Trip
+	reviewRepo    repository.Review
 	logger        *log.Logs
 	hashes        []string
 }
 
 func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite,
-	routeRepo repository.Route, placeRepo repository.Place, tripRepo repository.Trip) User {
+	routeRepo repository.Route, placeRepo repository.Place, tripRepo repository.Trip, reviewRepo repository.Review) User {
 	return &userService{
 		userRepo:      userRepo,
 		favouriteRepo: favouriteRepo,
 		routeRepo:     routeRepo,
 		placeRepo:     placeRepo,
 		tripRepo:      tripRepo,
+		reviewRepo:    reviewRepo,
 		logger:        logger,
 		hashes:        make([]string, 1),
 	}
@@ -290,6 +292,10 @@ func (u *userService) UpdateProperties(ctx context.Context, userID int, properti
 	return nil
 }
 
+func timeBetween(timeStart time.Time, timeEnd time.Time, entityTime time.Time) bool {
+	return entityTime.After(timeStart) && entityTime.Before(timeEnd)
+}
+
 func tripContainsEntity(entities []models.EntityWithDayAndPosition, entityID int) bool {
 	for _, entity := range entities {
 		if entity.EntityID == entityID {
@@ -333,7 +339,7 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 		}
 
 		for _, trip := range trips {
-			if tripContainsEntity(trip.Places, placeID) {
+			if timeBetween(trip.DateStart, trip.DateEnd, timeStamp) && tripContainsEntity(trip.Places, placeID) {
 				place.TripID = trip.ID
 				break
 			}
@@ -360,7 +366,7 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 		}
 
 		for _, trip := range trips {
-			if tripContainsEntity(trip.Routes, routeID) {
+			if timeBetween(trip.DateStart, trip.DateEnd, timeStamp) && tripContainsEntity(trip.Routes, routeID) {
 				route.TripID = trip.ID
 				break
 			}
@@ -370,5 +376,13 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 	}
 
 	chrono.LikedRoutes = routesChrono
+
+	placeReviews, routeReviews, err := u.reviewRepo.GetByAuthor(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error in getting reviews by author, %v", err)
+	}
+
+
+	for _, placeReview := range placeReviews
 
 }
