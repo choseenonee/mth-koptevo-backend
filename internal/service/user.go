@@ -21,18 +21,20 @@ type userService struct {
 	routeRepo     repository.Route
 	placeRepo     repository.Place
 	tripRepo      repository.Trip
+	reviewRepo    repository.Review
 	logger        *log.Logs
 	hashes        []string
 }
 
 func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite,
-	routeRepo repository.Route, placeRepo repository.Place, tripRepo repository.Trip) User {
+	routeRepo repository.Route, placeRepo repository.Place, tripRepo repository.Trip, reviewRepo repository.Review) User {
 	return &userService{
 		userRepo:      userRepo,
 		favouriteRepo: favouriteRepo,
 		routeRepo:     routeRepo,
 		placeRepo:     placeRepo,
 		tripRepo:      tripRepo,
+		reviewRepo:    reviewRepo,
 		logger:        logger,
 		hashes:        make([]string, 1),
 	}
@@ -79,9 +81,19 @@ func validateHash(hash string, slice *[]string) bool {
 	return false
 }
 
-func contains(placeID int, places []models.PlaceIDWithPosition) bool {
+func containsPlaceIDWithPosition(placeID int, places []models.PlaceIDWithPosition) bool {
 	for _, val := range places {
 		if placeID == val.PlaceID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func containsEntityIDWithDayAndPosition(placeID int, places []models.EntityWithDayAndPosition) bool {
+	for _, val := range places {
+		if placeID == val.EntityID {
 			return true
 		}
 	}
@@ -145,7 +157,7 @@ func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID 
 			return err
 		}
 
-		if contains(placeID, routeRaw.PlaceIDsWithPosition) {
+		if containsPlaceIDWithPosition(placeID, routeRaw.PlaceIDsWithPosition) {
 			routeLog := models.RouteLogWithOneTime{
 				UserID:    userID,
 				RouteID:   routeID,
@@ -306,4 +318,208 @@ func (u *userService) UpdateProperties(ctx context.Context, userID int, properti
 	}
 
 	return nil
+}
+
+func timeBetween(timeStart time.Time, timeEnd time.Time, entityTime time.Time) bool {
+	return entityTime.After(timeStart) && entityTime.Before(timeEnd)
+}
+
+func tripContainsEntity(entities []models.EntityWithDayAndPosition, entityID int) bool {
+	for _, entity := range entities {
+		if entity.EntityID == entityID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono, error) {
+	var chrono models.Chrono
+
+	trips, err := u.tripRepo.GetTripsByUser(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error on getting user trips, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
+	}
+
+	for _, trip := range trips {
+		for _, routeRaw := range trip.Routes {
+			route, err := u.routeRepo.GetByID(ctx, routeRaw.EntityID)
+			if err != nil {
+				err = fmt.Errorf("error on getting route places, %v", err)
+				u.logger.Error(err.Error())
+				return models.Chrono{}, err
+			}
+			for _, place := range route.PlaceIDsWithPosition {
+				placeRaw := models.EntityWithDayAndPosition{}
+				placeRaw.EntityID = place.PlaceID
+				trip.Places = append(trip.Places, placeRaw)
+			}
+		}
+	}
+
+	placeIDs, routeIDs, err := u.favouriteRepo.GetLikedByUser(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error on getting user liked data, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
+	}
+
+	var placesChrono []models.ChronoEntity
+	for _, placeID := range placeIDs {
+		timeStamp, err := u.favouriteRepo.GetPlaceTimestamp(ctx, userID, placeID)
+		if err != nil {
+			err = fmt.Errorf("error on getting place timestamp, place: %v,  %v", placeID, err)
+			u.logger.Error(err.Error())
+			return models.Chrono{}, err
+		}
+
+		place := models.ChronoEntity{
+			ID:        placeID,
+			TimeStamp: timeStamp,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if timeBetween(trip.DateStart, trip.DateEnd, timeStamp) && tripContainsEntity(trip.Places, placeID) {
+				place.TripID = trip.ID
+				break
+			}
+		}
+
+		placesChrono = append(placesChrono, place)
+	}
+
+	chrono.LikedPlaces = placesChrono
+
+	var routesChrono []models.ChronoEntity
+	for _, routeID := range routeIDs {
+		timeStamp, err := u.favouriteRepo.GetRouteTimestamp(ctx, userID, routeID)
+		if err != nil {
+			err = fmt.Errorf("error on getting place timestamp, route: %v,  %v", routeID, err)
+			u.logger.Error(err.Error())
+			return models.Chrono{}, err
+		}
+
+		route := models.ChronoEntity{
+			ID:        routeID,
+			TimeStamp: timeStamp,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if timeBetween(trip.DateStart, trip.DateEnd, timeStamp) && tripContainsEntity(trip.Routes, routeID) {
+				route.TripID = trip.ID
+				break
+			}
+		}
+
+		routesChrono = append(routesChrono, route)
+	}
+
+	chrono.LikedRoutes = routesChrono
+
+	placeReviews, routeReviews, err := u.reviewRepo.GetByAuthor(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error in getting reviews by author, %v", err)
+	}
+
+	var placeReviewsChrono []models.ChronoEntity
+	for _, placeReview := range placeReviews {
+		placeReviewChrono := models.ChronoEntity{
+			ID:        placeReview.ID,
+			TimeStamp: placeReview.TimeStamp,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if timeBetween(trip.DateStart, trip.DateEnd, placeReview.TimeStamp) && tripContainsEntity(trip.Places, placeReview.PlaceID) {
+				placeReviewChrono.TripID = trip.ID
+				break
+			}
+		}
+
+		placeReviewsChrono = append(placeReviewsChrono, placeReviewChrono)
+	}
+
+	chrono.PlaceReviews = placeReviewsChrono
+
+	var routeReviewsChrono []models.ChronoEntity
+	for _, routeReview := range routeReviews {
+		routeReviewChrono := models.ChronoEntity{
+			ID:        routeReview.ID,
+			TimeStamp: routeReview.TimeStamp,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if timeBetween(trip.DateStart, trip.DateEnd, routeReview.TimeStamp) && tripContainsEntity(trip.Routes, routeReview.RouteID) {
+				routeReviewChrono.TripID = trip.ID
+				break
+			}
+		}
+
+		routeReviewsChrono = append(routeReviewsChrono, routeReviewChrono)
+	}
+
+	chrono.RouteReviews = routeReviewsChrono
+
+	checkedInPlaceIDs, err := u.userRepo.GetCheckedInPlaceIDs(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error in getting checked in places by userID, %v", err)
+	}
+
+	var checkedInPlacesChrono []models.ChronoEntity
+	for _, checkedInPlaceID := range checkedInPlaceIDs {
+		timeStamp, err := u.userRepo.GetCheckInTimeStamp(ctx, userID, checkedInPlaceID)
+		if err != nil {
+			err = fmt.Errorf("error in getting timeStamp for checked in place, %v", err)
+		}
+
+		checkedInPlace := models.ChronoEntity{
+			ID:        checkedInPlaceID,
+			TimeStamp: timeStamp,
+			TripID:    0,
+		}
+		for _, trip := range trips {
+			if containsEntityIDWithDayAndPosition(checkedInPlaceID, trip.Places) && timeBetween(trip.DateStart, trip.DateEnd, timeStamp) {
+				checkedInPlace.TripID = trip.ID
+				break
+			}
+		}
+
+		checkedInPlacesChrono = append(checkedInPlacesChrono, checkedInPlace)
+	}
+
+	chrono.CheckIns = checkedInPlacesChrono
+
+	routeLogs, err := u.userRepo.GetRouteLogs(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error in getting route logs by userID, %v", err)
+	}
+
+	var routeLogsChrono []models.ChronoEntity
+
+	for _, routeLog := range routeLogs {
+		routeLogChrono := models.ChronoEntity{
+			ID:        routeLog.RouteId,
+			TimeStamp: routeLog.StartTime,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if tripContainsEntity(trip.Routes, routeLog.RouteId) && timeBetween(trip.DateStart, trip.DateEnd, routeLog.StartTime) {
+				routeLogChrono.TripID = trip.ID
+				break
+			}
+		}
+
+		routeLogsChrono = append(routeLogsChrono, routeLogChrono)
+	}
+
+	chrono.RouteLogs = routeLogsChrono
+
+	return chrono, nil
 }

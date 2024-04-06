@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
+	"time"
 )
 
 type favouriteRepo struct {
@@ -162,4 +163,25 @@ func (f favouriteRepo) DeleteOnPlace(ctx context.Context, like models.Like) erro
 func (f favouriteRepo) DeleteOnRoute(ctx context.Context, like models.Like) error {
 	query := `DELETE FROM users_favourite_routes WHERE user_id = $1 AND route_id = $2;`
 	return f.delete(ctx, query, like.UserID, like.EntityID)
+}
+
+func (f favouriteRepo) getTimestamp(ctx context.Context, query string, userID, entityID int) (time.Time, error) {
+	var timeStamp time.Time
+
+	err := f.db.QueryRowContext(ctx, query, userID, entityID).Scan(&timeStamp)
+	if err != nil {
+		return time.Time{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+	}
+
+	return timeStamp, nil
+}
+
+func (f favouriteRepo) GetPlaceTimestamp(ctx context.Context, userID, placeID int) (time.Time, error) {
+	query := `SELECT timestamp FROM users_favourite_places WHERE user_id = $1 AND place_id = $2`
+	return f.getTimestamp(ctx, query, userID, placeID)
+}
+
+func (f favouriteRepo) GetRouteTimestamp(ctx context.Context, userID, routeID int) (time.Time, error) {
+	query := `SELECT timestamp FROM users_favourite_routes WHERE user_id = $1 AND route_id = $2`
+	return f.getTimestamp(ctx, query, userID, routeID)
 }

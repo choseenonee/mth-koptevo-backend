@@ -1,4 +1,40 @@
 definitions:
+  models.Chrono:
+    properties:
+      check_ins:
+        items:
+          $ref: '#/definitions/models.ChronoEntity'
+        type: array
+      liked_places:
+        items:
+          $ref: '#/definitions/models.ChronoEntity'
+        type: array
+      liked_routes:
+        items:
+          $ref: '#/definitions/models.ChronoEntity'
+        type: array
+      place_reviews:
+        items:
+          $ref: '#/definitions/models.ChronoEntity'
+        type: array
+      route_logs:
+        items:
+          $ref: '#/definitions/models.ChronoEntity'
+        type: array
+      route_reviews:
+        items:
+          $ref: '#/definitions/models.ChronoEntity'
+        type: array
+    type: object
+  models.ChronoEntity:
+    properties:
+      id:
+        type: integer
+      timestamp:
+        type: string
+      trip_id:
+        type: integer
+    type: object
   models.CompanionsFilters:
     properties:
       date_from:
@@ -1808,6 +1844,37 @@ paths:
             items:
               $ref: '#/definitions/models.Place'
             type: array
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/chrono:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: userID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user properties json
+          schema:
+            $ref: '#/definitions/models.Chrono'
         "400":
           description: Invalid input
           schema:
