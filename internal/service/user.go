@@ -126,7 +126,6 @@ func containsInt(routeIDs []int, routeID int) bool {
 	return false
 }
 
-// TODO: проверить начало маршрута, проверить конец маршрута, проверить что место в неск маршрутах юзера сразу
 func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID int) error {
 	_, routeIDs, err := u.favouriteRepo.GetLikedByUser(ctx, userID)
 	if err != nil {
@@ -192,6 +191,66 @@ func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID 
 	return nil
 }
 
+func containsWithPosition(places []models.PlaceIDWithPosition, placeID int) (bool, int) {
+	for _, place := range places {
+		if place.PlaceID == placeID {
+			return true, place.Position
+		}
+	}
+
+	return false, 0
+}
+
+var badPlaceVarieties = [7]string{"Редкое событие", "Площади", "Архитектура", "Памятники", "Набережные", "Улицы", "Природа"}
+
+func isNonCheckinable(variety interface{}) bool {
+	for _, badPlaceVariety := range badPlaceVarieties {
+		if variety == badPlaceVariety {
+			return true
+		}
+	}
+
+	return false
+}
+
+// iterDownFromPosition flag нужен для того чтобы понимать встретили ли мы конец или
+func iterDownFromPosition(places []map[string]interface{}, position int) []int {
+	var nonCheckinablePlaceIDs []int
+
+	position--
+	for position > 0 {
+		for _, place := range places {
+			if place["position"] == position {
+				if isNonCheckinable(place["variety"]) {
+					nonCheckinablePlaceIDs = append(nonCheckinablePlaceIDs, place["id"].(int))
+					break
+				} else {
+					return nonCheckinablePlaceIDs
+				}
+			}
+		}
+		position--
+	}
+
+	return nil
+}
+
+func (u *userService) getPlacesWithPosition(ctx context.Context, rawPlaces []models.PlaceIDWithPosition) ([]map[string]interface{}, error) {
+	var placesWithPosition []map[string]interface{}
+	for _, rawPlace := range rawPlaces {
+		place, err := u.placeRepo.GetByID(ctx, rawPlace.PlaceID)
+		if err != nil {
+			return []map[string]interface{}{}, err
+		}
+
+		placesWithPosition = append(placesWithPosition, map[string]interface{}{
+			"variety": place.Variety, "position": rawPlace.Position, "id": place.ID,
+		})
+	}
+
+	return placesWithPosition, nil
+}
+
 func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (string, error) {
 	decodedString, err := vernamCipher(cipher)
 	if err != nil {
@@ -218,6 +277,40 @@ func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (s
 			return "", fmt.Errorf("пользователь уже чекинился в этом месте %v", err)
 		}
 		return "", err
+	}
+
+	routeLogs, err := u.userRepo.GetRouteLogs(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return "", err
+	}
+
+	for _, routeLog := range routeLogs {
+		if routeLog.EndTime.Before(routeLog.StartTime) {
+			route, err := u.routeRepo.GetByID(ctx, routeLog.RouteId)
+			if err != nil {
+				u.logger.Error(err.Error())
+				return "", err
+			}
+
+			isInRoute, position := containsWithPosition(route.PlaceIDsWithPosition, placeID)
+			if isInRoute {
+				placesWithPosition, err := u.getPlacesWithPosition(ctx, route.PlaceIDsWithPosition)
+				if err != nil {
+					u.logger.Error(err.Error())
+					return "", err
+				}
+
+				placesToCheckIn := iterDownFromPosition(placesWithPosition, position)
+				for _, placeID := range placesToCheckIn {
+					err := u.userRepo.CheckInPlace(ctx, userID, placeID)
+					if err != nil {
+						u.logger.Error(err.Error())
+						return "", err
+					}
+				}
+			}
+		}
 	}
 
 	err = u.updateRouteLogStatus(ctx, userID, placeID)

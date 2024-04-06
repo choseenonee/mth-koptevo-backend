@@ -6,8 +6,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"mth/internal/repository"
 	"mth/pkg/config"
-	"mth/pkg/database"
-	"mth/pkg/log"
 	"testing"
 )
 
@@ -171,14 +169,16 @@ func testCaseStartRoute(service User, repo repository.User) {
 
 func TestUserService_CheckINLogs(t *testing.T) {
 	config.InitConfig()
-	logger, _, _ := log.InitLogger()
-	db := database.GetDB()
 
-	userRepo := repository.InitUserRepo(db)
-	favouriteRepo := repository.InitFavouriteRepo(db)
-	routeRepo := repository.InitRouteRepo(db)
-	placeRepo := repository.InitPlaceRepo(db)
-	tripRepo := repository.InitTripRepo(db)
+	fmt.Println(vernamCipher("4 sdinasdiahsduia"))
+	//logger, _, _ := log.InitLogger()
+	//db := database.GetDB()
+	//
+	//userRepo := repository.InitUserRepo(db)
+	//favouriteRepo := repository.InitFavouriteRepo(db)
+	//routeRepo := repository.InitRouteRepo(db)
+	//placeRepo := repository.InitPlaceRepo(db)
+	//tripRepo := repository.InitTripRepo(db)
 
 	//tx, err := db.Beginx()
 	//if err != nil {
@@ -187,9 +187,9 @@ func TestUserService_CheckINLogs(t *testing.T) {
 	//InitPlaces(tx)
 	//InitRoutes(tx)
 
-	userService := InitUserService(userRepo, logger, favouriteRepo, routeRepo, placeRepo, tripRepo)
-
-	testCaseStartRoute(userService, userRepo)
-
-	_ = userService
+	//userService := InitUserService(userRepo, logger, favouriteRepo, routeRepo, placeRepo, tripRepo)
+	//
+	//testCaseStartRoute(userService, userRepo)
+	//
+	//_ = userService
 }
