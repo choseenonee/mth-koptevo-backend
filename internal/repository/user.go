@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"mth/internal/models"
 	"mth/pkg/customerr"
+	"time"
 )
 
 type userRepo struct {
@@ -155,6 +156,18 @@ func (u userRepo) GetCheckedInPlaceIDs(ctx context.Context, userID int) ([]int, 
 	}
 
 	return placeIDs, nil
+}
+
+func (u userRepo) GetCheckInTimeStamp(ctx context.Context, userID, placeID int) (time.Time, error) {
+	query := `SELECT timestamp FROM users_place_checkin WHERE user_id = $1 AND place_id = $2`
+
+	var timeStamp time.Time
+	err := u.db.QueryRowContext(ctx, query, userID, placeID).Scan(&timeStamp)
+	if err != nil {
+		return time.Time{}, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ExecErr, Err: err})
+	}
+
+	return timeStamp, nil
 }
 
 func (u userRepo) GetRouteLogs(ctx context.Context, userID int) ([]models.RouteLog, error) {

@@ -78,6 +78,7 @@ type User interface {
 	GetRouteLogs(ctx context.Context, userID int) ([]models.RouteLog, error)
 	StartRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error
 	EndRoute(ctx context.Context, routeLog models.RouteLogWithOneTime) error
+	GetCheckInTimeStamp(ctx context.Context, userID, placeID int) (time.Time, error)
 }
 
 type Trip interface {
