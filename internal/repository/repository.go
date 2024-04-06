@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"mth/internal/models"
+	"time"
 )
 
 type Tag interface {
@@ -60,6 +61,8 @@ type Favourite interface {
 	LikeRoute(ctx context.Context, like models.Like) error
 	// GetLikedByUser PlaceIDs then RouteIDs
 	GetLikedByUser(ctx context.Context, userID int) ([]int, []int, error)
+	GetPlaceTimestamp(ctx context.Context, userID, placeID int) (time.Time, error)
+	GetRouteTimestamp(ctx context.Context, userID, routeID int) (time.Time, error)
 	DeleteOnPlace(ctx context.Context, like models.Like) error
 	DeleteOnRoute(ctx context.Context, like models.Like) error
 }

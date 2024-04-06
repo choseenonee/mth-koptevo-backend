@@ -73,6 +73,7 @@ type User interface {
 	CheckIn(ctx context.Context, cipher string, userID int) (string, error)
 	ValidateHash(ctx context.Context, hash string) bool
 	GetCheckedPlaces(ctx context.Context, userID int) ([]models.Place, error)
+	GetChrono(ctx context.Context, userID int) (models.Chrono, error)
 }
 
 type Trip interface {

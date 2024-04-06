@@ -289,3 +289,86 @@ func (u *userService) UpdateProperties(ctx context.Context, userID int, properti
 
 	return nil
 }
+
+func tripContainsEntity(entities []models.EntityWithDayAndPosition, entityID int) bool {
+	for _, entity := range entities {
+		if entity.EntityID == entityID {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono, error) {
+	var chrono models.Chrono
+
+	trips, err := u.tripRepo.GetTripsByUser(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error on getting user trips, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
+	}
+
+	placeIDs, routeIDs, err := u.favouriteRepo.GetLikedByUser(ctx, userID)
+	if err != nil {
+		err = fmt.Errorf("error on getting user liked data, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
+	}
+
+	var placesChrono []models.ChronoEntity
+	for _, placeID := range placeIDs {
+		timeStamp, err := u.favouriteRepo.GetPlaceTimestamp(ctx, userID, placeID)
+		if err != nil {
+			err = fmt.Errorf("error on getting place timestamp, place: %v,  %v", placeID, err)
+			u.logger.Error(err.Error())
+			return models.Chrono{}, err
+		}
+
+		place := models.ChronoEntity{
+			ID:        placeID,
+			TimeStamp: timeStamp,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if tripContainsEntity(trip.Places, placeID) {
+				place.TripID = trip.ID
+				break
+			}
+		}
+
+		placesChrono = append(placesChrono, place)
+	}
+
+	chrono.LikedPlaces = placesChrono
+
+	var routesChrono []models.ChronoEntity
+	for _, routeID := range routeIDs {
+		timeStamp, err := u.favouriteRepo.GetRouteTimestamp(ctx, userID, routeID)
+		if err != nil {
+			err = fmt.Errorf("error on getting place timestamp, route: %v,  %v", routeID, err)
+			u.logger.Error(err.Error())
+			return models.Chrono{}, err
+		}
+
+		route := models.ChronoEntity{
+			ID:        routeID,
+			TimeStamp: timeStamp,
+			TripID:    0,
+		}
+
+		for _, trip := range trips {
+			if tripContainsEntity(trip.Routes, routeID) {
+				route.TripID = trip.ID
+				break
+			}
+		}
+
+		routesChrono = append(routesChrono, route)
+	}
+
+	chrono.LikedRoutes = routesChrono
+
+}
