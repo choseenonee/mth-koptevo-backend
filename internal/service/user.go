@@ -363,7 +363,7 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 			TimeStamp: timeStamp,
 			TripID:    0,
 		}
-		// TODO: сделать ещё проверку в местах раутов
+
 		for _, trip := range trips {
 			if timeBetween(trip.DateStart, trip.DateEnd, timeStamp) && tripContainsEntity(trip.Places, placeID) {
 				place.TripID = trip.ID
@@ -455,25 +455,24 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 
 	var checkedInPlacesChrono []models.ChronoEntity
 	for _, checkedInPlaceID := range checkedInPlaceIDs {
+		timeStamp, err := u.userRepo.GetCheckInTimeStamp(ctx, userID, checkedInPlaceID)
+		if err != nil {
+			err = fmt.Errorf("error in getting timeStamp for checked in place, %v", err)
+		}
+
+		checkedInPlace := models.ChronoEntity{
+			ID:        checkedInPlaceID,
+			TimeStamp: timeStamp,
+			TripID:    0,
+		}
 		for _, trip := range trips {
-			timeStamp, err := u.userRepo.GetCheckInTimeStamp(ctx, userID, checkedInPlaceID)
-			if err != nil {
-				err = fmt.Errorf("error in getting timeStamp for checked in place, %v", err)
-			}
-
-			checkedInPlace := models.ChronoEntity{
-				ID:        checkedInPlaceID,
-				TimeStamp: timeStamp,
-				TripID:    0,
-			}
-
 			if containsEntityIDWithDayAndPosition(checkedInPlaceID, trip.Places) && timeBetween(trip.DateStart, trip.DateEnd, timeStamp) {
 				checkedInPlace.TripID = trip.ID
 				break
 			}
-
-			checkedInPlacesChrono = append(checkedInPlacesChrono, checkedInPlace)
 		}
+
+		checkedInPlacesChrono = append(checkedInPlacesChrono, checkedInPlace)
 	}
 
 	chrono.CheckIns = checkedInPlacesChrono

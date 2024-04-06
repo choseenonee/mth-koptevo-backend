@@ -30,6 +30,7 @@ func RegisterUserRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tra
 	userRouter.GET("/checked_in", userHandler.GetCheckedPlaces)
 	userRouter.GET("/properties", userHandler.GetMyProperties)
 	userRouter.PUT("/update_properties", userHandler.UpdateProperties)
+	userRouter.GET("/chrono", userHandler.GetChrono)
 
 	return userRouter
 }

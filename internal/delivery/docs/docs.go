@@ -2211,6 +2211,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/chrono": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "userID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user properties json",
+                        "schema": {
+                            "$ref": "#/definitions/models.Chrono"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/user/login": {
             "put": {
                 "consumes": [
@@ -2459,6 +2507,61 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "models.Chrono": {
+            "type": "object",
+            "properties": {
+                "check_ins": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChronoEntity"
+                    }
+                },
+                "liked_places": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChronoEntity"
+                    }
+                },
+                "liked_routes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChronoEntity"
+                    }
+                },
+                "place_reviews": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChronoEntity"
+                    }
+                },
+                "route_logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChronoEntity"
+                    }
+                },
+                "route_reviews": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ChronoEntity"
+                    }
+                }
+            }
+        },
+        "models.ChronoEntity": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "timestamp": {
+                    "type": "string"
+                },
+                "trip_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "models.CompanionsFilters": {
             "type": "object",
             "properties": {

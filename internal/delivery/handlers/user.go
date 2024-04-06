@@ -327,3 +327,47 @@ func (u UserHandler) UpdateProperties(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+// GetChrono @Summary Получить хронологию
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id query string true "userID"
+// @Success 200 {object} models.Chrono "user properties json"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/chrono [get]
+func (u UserHandler) GetChrono(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "Get user properties")
+	defer span.End()
+
+	idRaw := c.Query("id")
+	userID, err := strconv.Atoi(idRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	chrono, err := u.userService.GetChrono(ctx, userID)
+	if err != nil {
+		var status int
+		if strings.Contains(err.Error(), "no rows in result set") {
+			status = http.StatusUnauthorized
+		} else {
+			status = http.StatusInternalServerError
+		}
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		c.JSON(status, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, chrono)
+}
