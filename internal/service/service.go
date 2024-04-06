@@ -43,7 +43,7 @@ type Note interface {
 	GetByIDs(ctx context.Context, userID int, placeID int) (models.Note, error)
 	GetByID(ctx context.Context, noteID int) (models.Note, error)
 	GetByUser(ctx context.Context, userID int) ([]models.Note, error)
-	Update(ctx context.Context, noteUpd models.NoteUpdate) error
+	Update(ctx context.Context, noteUpd models.NoteCreate) error
 }
 
 type Companions interface {

@@ -160,7 +160,7 @@ func (n noteRepo) GetByUser(ctx context.Context, userID int) ([]models.Note, err
 	return notes, nil
 }
 
-func (n noteRepo) Update(ctx context.Context, noteUpd models.NoteUpdate) error {
+func (n noteRepo) Update(ctx context.Context, noteUpd models.NoteCreate) error {
 	tx, err := n.db.Beginx()
 	if err != nil {
 		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.TransactionErr, Err: err})
@@ -171,9 +171,9 @@ func (n noteRepo) Update(ctx context.Context, noteUpd models.NoteUpdate) error {
 		return customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 	}
 
-	query := `UPDATE notes SET properties = $2 WHERE id = $1;`
+	query := `UPDATE notes SET properties = $3 WHERE user_id = $1 AND place_id = $2;`
 
-	_, err = tx.ExecContext(ctx, query, jsonProperties)
+	_, err = tx.ExecContext(ctx, query, noteUpd.UserID, noteUpd.PlaceID, jsonProperties)
 	if err != nil {
 		if rbErr := tx.Rollback(); rbErr != nil {
 			return customerr.ErrNormalizer(

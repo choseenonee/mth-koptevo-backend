@@ -178,3 +178,40 @@ func (r NoteHandler) GetByNoteID(c *gin.Context) {
 
 	c.JSON(http.StatusOK, place)
 }
+
+// Update @Summary Update note
+// @Tags note
+// @Accept  json
+// @Produce  json
+// @Param data body models.NoteCreate true "Note id"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /note/update [put]
+func (r NoteHandler) Update(c *gin.Context) {
+	ctx, span := r.tracer.Start(c.Request.Context(), "Update note")
+	defer span.End()
+
+	var noteUpdate models.NoteCreate
+
+	if err := c.ShouldBindJSON(&noteUpdate); err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	span.AddEvent(tracing.CallToService)
+	err := r.NoteService.Update(ctx, noteUpdate)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.ServiceError, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}

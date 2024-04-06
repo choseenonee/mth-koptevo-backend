@@ -59,7 +59,7 @@ func (n noteService) GetByUser(ctx context.Context, userID int) ([]models.Note, 
 	return notes, nil
 }
 
-func (n noteService) Update(ctx context.Context, noteUpd models.NoteUpdate) error {
+func (n noteService) Update(ctx context.Context, noteUpd models.NoteCreate) error {
 	err := n.noteRepo.Update(ctx, noteUpd)
 	if err != nil {
 		n.logger.Error(err.Error())

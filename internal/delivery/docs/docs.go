@@ -861,6 +861,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/note/update": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "note"
+                ],
+                "parameters": [
+                    {
+                        "description": "Note id",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.NoteCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/place/by_id": {
             "get": {
                 "consumes": [
@@ -2333,7 +2377,7 @@ const docTemplate = `{
                     "200": {
                         "description": "user properties json",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/swagger.UserMe"
                         }
                     },
                     "400": {
@@ -3164,6 +3208,16 @@ const docTemplate = `{
                 "password": {
                     "type": "string"
                 }
+            }
+        },
+        "swagger.UserMe": {
+            "type": "object",
+            "properties": {
+                "current_trip_start_date": {},
+                "login": {
+                    "type": "string"
+                },
+                "properties": {}
             }
         },
         "swagger.UserUpdate": {

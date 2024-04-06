@@ -433,6 +433,13 @@ definitions:
       password:
         type: string
     type: object
+  swagger.UserMe:
+    properties:
+      current_trip_start_date: {}
+      login:
+        type: string
+      properties: {}
+    type: object
   swagger.UserUpdate:
     properties:
       id:
@@ -976,6 +983,34 @@ paths:
           description: Successfully created note with id
           schema:
             type: integer
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - note
+  /note/update:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Note id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/models.NoteCreate'
+      produces:
+      - application/json
+      responses:
         "400":
           description: Invalid input
           schema:
@@ -1937,7 +1972,7 @@ paths:
         "200":
           description: user properties json
           schema:
-            type: string
+            $ref: '#/definitions/swagger.UserMe'
         "400":
           description: Invalid input
           schema:
