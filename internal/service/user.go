@@ -104,6 +104,16 @@ func (u *userService) calculateCheckInsInRoute(places []models.PlaceIDWithPositi
 	return intersection
 }
 
+func containsInt(routeIDs []int, routeID int) bool {
+	for _, val := range routeIDs {
+		if routeID == val {
+			return true
+		}
+	}
+
+	return false
+}
+
 // TODO: проверить начало маршрута, проверить конец маршрута, проверить что место в неск маршрутах юзера сразу
 func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID int) error {
 	_, routeIDs, err := u.favouriteRepo.GetLikedByUser(ctx, userID)
@@ -122,7 +132,9 @@ func (u *userService) updateRouteLogStatus(ctx context.Context, userID, placeID 
 
 	for _, userTrip := range userTrips {
 		for _, userTripRoute := range userTrip.Routes {
-			routeIDs = append(routeIDs, userTripRoute.EntityID)
+			if !containsInt(routeIDs, userTripRoute.EntityID) {
+				routeIDs = append(routeIDs, userTripRoute.EntityID)
+			}
 		}
 	}
 

@@ -177,6 +177,8 @@ func TestUserService_CheckINLogs(t *testing.T) {
 	userRepo := repository.InitUserRepo(db)
 	favouriteRepo := repository.InitFavouriteRepo(db)
 	routeRepo := repository.InitRouteRepo(db)
+	placeRepo := repository.InitPlaceRepo(db)
+	tripRepo := repository.InitTripRepo(db)
 
 	//tx, err := db.Beginx()
 	//if err != nil {
@@ -185,7 +187,7 @@ func TestUserService_CheckINLogs(t *testing.T) {
 	//InitPlaces(tx)
 	//InitRoutes(tx)
 
-	userService := InitUserService(userRepo, logger, favouriteRepo, routeRepo)
+	userService := InitUserService(userRepo, logger, favouriteRepo, routeRepo, placeRepo, tripRepo)
 
 	testCaseStartRoute(userService, userRepo)
 
