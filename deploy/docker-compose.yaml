@@ -40,3 +40,8 @@ services:
     ports:
       - "14268:14268"
       - "16686:16686"
+#
+#  frontend:
+#    image: theechoseenonee/frontend:4.0
+#    ports:
+#      - "3000:3000"
