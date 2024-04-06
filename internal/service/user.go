@@ -270,14 +270,14 @@ func (u *userService) GetCheckedPlaces(ctx context.Context, userID int) ([]model
 	return places, nil
 }
 
-func (u *userService) GetProperties(ctx context.Context, userID int) (interface{}, error) {
-	properties, err := u.userRepo.GetProperties(ctx, userID)
+func (u *userService) GetProperties(ctx context.Context, userID int) (string, interface{}, error) {
+	login, properties, err := u.userRepo.GetProperties(ctx, userID)
 	if err != nil {
 		u.logger.Error(err.Error())
-		return nil, err
+		return "", nil, err
 	}
 
-	return properties, nil
+	return login, properties, nil
 }
 
 func (u *userService) UpdateProperties(ctx context.Context, userID int, properties interface{}) error {

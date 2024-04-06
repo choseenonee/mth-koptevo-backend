@@ -67,7 +67,7 @@ type Favourite interface {
 // User TODO: из get route logs сделать позже get_chrono service
 type User interface {
 	GetUser(ctx context.Context, login string) (int, string, error)
-	GetProperties(ctx context.Context, userID int) (interface{}, error)
+	GetProperties(ctx context.Context, userID int) (string, interface{}, error)
 	UpdateProperties(ctx context.Context, userID int, properties interface{}) error
 	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
 	CheckInPlace(ctx context.Context, userID, placeID int) error

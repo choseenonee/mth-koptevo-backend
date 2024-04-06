@@ -245,7 +245,7 @@ func (u UserHandler) GetCheckedPlaces(c *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param id query string true "userID"
-// @Success 200 {object} string "user properties json"
+// @Success 200 {object} swagger.UserMe "user properties json"
 // @Failure 400 {object} map[string]string "Invalid input"
 // @Failure 500 {object} map[string]string "Internal server error"
 // @Router /user/properties [get]
@@ -264,7 +264,7 @@ func (u UserHandler) GetMyProperties(c *gin.Context) {
 		return
 	}
 
-	properties, err := u.userService.GetProperties(ctx, userID)
+	login, properties, err := u.userService.GetProperties(ctx, userID)
 	if err != nil {
 		var status int
 		if strings.Contains(err.Error(), "no rows in result set") {
@@ -281,7 +281,10 @@ func (u UserHandler) GetMyProperties(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, properties)
+	c.JSON(http.StatusOK, swagger.UserMe{
+		Login:      login,
+		Properties: properties,
+	})
 }
 
 // UpdateProperties @Summary Получить properties

@@ -190,22 +190,23 @@ func (u userRepo) GetRouteLogs(ctx context.Context, userID int) ([]models.RouteL
 	return routeLogs, nil
 }
 
-func (u userRepo) GetProperties(ctx context.Context, userID int) (interface{}, error) {
-	query := `SELECT properties FROM users WHERE id = $1`
+func (u userRepo) GetProperties(ctx context.Context, userID int) (string, interface{}, error) {
+	query := `SELECT login, properties FROM users WHERE id = $1`
 
 	var propertiesRaw []byte
 	var properties interface{}
-	err := u.db.QueryRowContext(ctx, query, userID).Scan(&propertiesRaw)
+	var login string
+	err := u.db.QueryRowContext(ctx, query, userID).Scan(&login, &propertiesRaw)
 	if err != nil {
-		return nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
+		return "", nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.ScanErr, Err: err})
 	}
 
 	err = json.Unmarshal(propertiesRaw, &properties)
 	if err != nil {
-		return nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
+		return "", nil, customerr.ErrNormalizer(customerr.ErrorPair{Message: customerr.BindErr, Err: err})
 	}
 
-	return properties, nil
+	return login, properties, nil
 }
 
 func (u userRepo) UpdateProperties(ctx context.Context, userID int, properties interface{}) error {
