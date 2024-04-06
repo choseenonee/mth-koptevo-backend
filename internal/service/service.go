@@ -4,6 +4,7 @@ import (
 	"context"
 	"mth/internal/models"
 	"mth/internal/models/swagger"
+	"time"
 )
 
 type Tag interface {
@@ -67,7 +68,7 @@ type Favourite interface {
 
 type User interface {
 	GetUser(ctx context.Context, login, password string) (int, error)
-	GetProperties(ctx context.Context, userID int) (string, interface{}, error)
+	GetProperties(ctx context.Context, userID int) (string, time.Time, interface{}, error)
 	UpdateProperties(ctx context.Context, userID int, properties interface{}) error
 	CreateUser(ctx context.Context, userCreate models.UserCreate) (int, error)
 	CheckIn(ctx context.Context, cipher string, userID int) (string, error)

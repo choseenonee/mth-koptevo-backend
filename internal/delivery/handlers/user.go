@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type UserHandler struct {
@@ -264,7 +265,7 @@ func (u UserHandler) GetMyProperties(c *gin.Context) {
 		return
 	}
 
-	login, properties, err := u.userService.GetProperties(ctx, userID)
+	login, currentTripStartDate, properties, err := u.userService.GetProperties(ctx, userID)
 	if err != nil {
 		var status int
 		if strings.Contains(err.Error(), "no rows in result set") {
@@ -281,10 +282,16 @@ func (u UserHandler) GetMyProperties(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, swagger.UserMe{
+	response := swagger.UserMe{
 		Login:      login,
 		Properties: properties,
-	})
+	}
+
+	if currentTripStartDate.After(time.Time{}) {
+		response.CurrentTripStartDate = currentTripStartDate
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 // UpdateProperties @Summary Получить properties

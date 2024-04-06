@@ -270,14 +270,32 @@ func (u *userService) GetCheckedPlaces(ctx context.Context, userID int) ([]model
 	return places, nil
 }
 
-func (u *userService) GetProperties(ctx context.Context, userID int) (string, interface{}, error) {
+func (u *userService) timeBetween(timeStart, timeEnd, entityTime time.Time) bool {
+	return entityTime.After(timeStart) && entityTime.Before(timeEnd)
+}
+
+func (u *userService) GetProperties(ctx context.Context, userID int) (string, time.Time, interface{}, error) {
 	login, properties, err := u.userRepo.GetProperties(ctx, userID)
 	if err != nil {
 		u.logger.Error(err.Error())
-		return "", nil, err
+		return "", time.Time{}, nil, err
 	}
 
-	return login, properties, nil
+	trips, err := u.tripRepo.GetTripsByUser(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return "", time.Time{}, nil, err
+	}
+
+	var currentStartTripDate time.Time
+	for _, trip := range trips {
+		if u.timeBetween(trip.DateStart, trip.DateEnd, time.Now()) {
+			currentStartTripDate = trip.DateStart
+			break
+		}
+	}
+
+	return login, currentStartTripDate, properties, nil
 }
 
 func (u *userService) UpdateProperties(ctx context.Context, userID int, properties interface{}) error {

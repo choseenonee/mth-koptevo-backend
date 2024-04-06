@@ -11,6 +11,7 @@ type UserUpdate struct {
 }
 
 type UserMe struct {
-	Login      string      `json:"login"`
-	Properties interface{} `json:"properties"`
+	Login                string      `json:"login"`
+	CurrentTripStartDate interface{} `json:"current_trip_start_date"`
+	Properties           interface{} `json:"properties"`
 }
