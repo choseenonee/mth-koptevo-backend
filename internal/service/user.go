@@ -690,3 +690,19 @@ func (u *userService) GetPlaceCheckInFlag(ctx context.Context, userID, placeID i
 
 	return containsInt(userCheckedInPlaceIDs, placeID), nil
 }
+
+func (u *userService) GetRouteCheckInFlag(ctx context.Context, userID, routeID int) (bool, error) {
+	routeLogs, err := u.userRepo.GetRouteLogs(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return false, err
+	}
+
+	for _, routeLog := range routeLogs {
+		if routeLog.RouteId == routeID && routeLog.UserID == userID && routeLog.EndTime.After(routeLog.StartTime) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}

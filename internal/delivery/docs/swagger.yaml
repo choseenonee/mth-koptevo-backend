@@ -2095,6 +2095,42 @@ paths:
             type: object
       tags:
       - user
+  /user/route_check_in_flag:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: route_id
+        in: query
+        name: route_id
+        required: true
+        type: string
+      - description: UserID
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Just valid hash
+          schema:
+            type: string
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
   /user/update_properties:
     put:
       consumes:
