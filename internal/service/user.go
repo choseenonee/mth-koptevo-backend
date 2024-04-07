@@ -517,6 +517,8 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 	placeReviews, routeReviews, err := u.reviewRepo.GetByAuthor(ctx, userID)
 	if err != nil {
 		err = fmt.Errorf("error in getting reviews by author, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
 	}
 
 	var placeReviewsChrono []models.ChronoEntity
@@ -562,6 +564,8 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 	checkedInPlaceIDs, err := u.userRepo.GetCheckedInPlaceIDs(ctx, userID)
 	if err != nil {
 		err = fmt.Errorf("error in getting checked in places by userID, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
 	}
 
 	var checkedInPlacesChrono []models.ChronoEntity
@@ -569,6 +573,8 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 		timeStamp, err := u.userRepo.GetCheckInTimeStamp(ctx, userID, checkedInPlaceID)
 		if err != nil {
 			err = fmt.Errorf("error in getting timeStamp for checked in place, %v", err)
+			u.logger.Error(err.Error())
+			return models.Chrono{}, err
 		}
 
 		checkedInPlace := models.ChronoEntity{
@@ -591,6 +597,8 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 	routeLogs, err := u.userRepo.GetRouteLogs(ctx, userID)
 	if err != nil {
 		err = fmt.Errorf("error in getting route logs by userID, %v", err)
+		u.logger.Error(err.Error())
+		return models.Chrono{}, err
 	}
 
 	var routeLogsChrono []models.ChronoEntity
@@ -615,4 +623,52 @@ func (u *userService) GetChrono(ctx context.Context, userID int) (models.Chrono,
 	chrono.RouteLogs = routeLogsChrono
 
 	return chrono, nil
+}
+
+func (u *userService) GetCurrentRoute(ctx context.Context, userID int) (models.RouteDisplay, error) {
+	userRoutes, err := u.userRepo.GetRouteLogs(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return models.RouteDisplay{}, err
+	}
+
+	for _, userRoute := range userRoutes {
+		if userRoute.EndTime.Before(userRoute.StartTime) {
+			route, err := u.routeRepo.GetByID(ctx, userRoute.RouteId)
+			if err != nil {
+				u.logger.Error(err.Error())
+				return models.RouteDisplay{}, err
+			}
+
+			userCheckedInPlaces, err := u.userRepo.GetCheckedInPlaceIDs(ctx, userID)
+			if err != nil {
+				u.logger.Error(err.Error())
+				return models.RouteDisplay{}, err
+			}
+
+			var nextPlace int
+			var position = 1
+			for position < len(route.PlaceIDsWithPosition) {
+				for _, routePlace := range route.PlaceIDsWithPosition {
+					if routePlace.Position == position {
+						if !containsInt(userCheckedInPlaces, routePlace.PlaceID) {
+							nextPlace = routePlace.PlaceID
+							break
+						}
+					}
+				}
+				position++
+			}
+
+			res := models.RouteDisplay{
+				ID:             route.ID,
+				NextPlaceID:    nextPlace,
+				CompletedPlace: position,
+			}
+
+			return res, nil
+		}
+	}
+
+	return models.RouteDisplay{}, nil
 }
