@@ -648,7 +648,7 @@ func (u *userService) GetCurrentRoute(ctx context.Context, userID int) (models.R
 			}
 
 			var nextPlace int
-			var position = 1
+			var position = 0
 			var breakFlag = false
 			for position <= len(route.PlaceIDsWithPosition) {
 				for _, routePlace := range route.PlaceIDsWithPosition {
