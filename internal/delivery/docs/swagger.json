@@ -2292,6 +2292,54 @@
                 }
             }
         },
+        "/user/current_route": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "userID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user properties json",
+                        "schema": {
+                            "$ref": "#/definitions/models.RouteDisplay"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/user/login": {
             "put": {
                 "consumes": [
@@ -2953,6 +3001,20 @@
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "models.RouteDisplay": {
+            "type": "object",
+            "properties": {
+                "completed_place": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "next_place_id": {
+                    "type": "integer"
                 }
             }
         },

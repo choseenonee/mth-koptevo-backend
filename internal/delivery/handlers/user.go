@@ -381,3 +381,41 @@ func (u UserHandler) GetChrono(c *gin.Context) {
 
 	c.JSON(http.StatusOK, chrono)
 }
+
+// GetCurrentRoute @Summary Получить хронологию
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id query string true "userID"
+// @Success 200 {object} models.RouteDisplay "user properties json"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/current_route [get]
+func (u UserHandler) GetCurrentRoute(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "Get user properties")
+	defer span.End()
+
+	idRaw := c.Query("id")
+	userID, err := strconv.Atoi(idRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	currentRoute, err := u.userService.GetCurrentRoute(ctx, userID)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, currentRoute)
+}

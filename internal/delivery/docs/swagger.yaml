@@ -274,6 +274,15 @@ definitions:
           type: integer
         type: array
     type: object
+  models.RouteDisplay:
+    properties:
+      completed_place:
+        type: integer
+      id:
+        type: integer
+      next_place_id:
+        type: integer
+    type: object
   models.RouteReview:
     properties:
       author_id:
@@ -1910,6 +1919,37 @@ paths:
           description: user properties json
           schema:
             $ref: '#/definitions/models.Chrono'
+        "400":
+          description: Invalid input
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      tags:
+      - user
+  /user/current_route:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: userID
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user properties json
+          schema:
+            $ref: '#/definitions/models.RouteDisplay'
         "400":
           description: Invalid input
           schema:

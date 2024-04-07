@@ -31,6 +31,7 @@ func RegisterUserRouter(r *gin.Engine, db *sqlx.DB, logger *log.Logs, tracer tra
 	userRouter.GET("/properties", userHandler.GetMyProperties)
 	userRouter.PUT("/update_properties", userHandler.UpdateProperties)
 	userRouter.GET("/chrono", userHandler.GetChrono)
+	userRouter.GET("/current_route", userHandler.GetCurrentRoute)
 
 	return userRouter
 }

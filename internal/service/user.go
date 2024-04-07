@@ -648,14 +648,22 @@ func (u *userService) GetCurrentRoute(ctx context.Context, userID int) (models.R
 
 			var nextPlace int
 			var position = 1
-			for position < len(route.PlaceIDsWithPosition) {
+			var breakFlag = false
+			for position <= len(route.PlaceIDsWithPosition) {
 				for _, routePlace := range route.PlaceIDsWithPosition {
 					if routePlace.Position == position {
 						if !containsInt(userCheckedInPlaces, routePlace.PlaceID) {
 							nextPlace = routePlace.PlaceID
+							breakFlag = true
 							break
 						}
 					}
+					if breakFlag {
+						break
+					}
+				}
+				if breakFlag {
+					break
 				}
 				position++
 			}
@@ -663,7 +671,7 @@ func (u *userService) GetCurrentRoute(ctx context.Context, userID int) (models.R
 			res := models.RouteDisplay{
 				ID:             route.ID,
 				NextPlaceID:    nextPlace,
-				CompletedPlace: position,
+				CompletedPlace: position - 1,
 			}
 
 			return res, nil
