@@ -260,8 +260,9 @@ func (u *userService) CheckIn(ctx context.Context, cipher string, userID int) (s
 
 	splittedStrings := strings.Split(decodedString, " ")
 	if len(splittedStrings) != 2 {
+		err := fmt.Errorf("расшифрованная строка не валидна")
 		u.logger.Error(err.Error())
-		return "", fmt.Errorf("расшифрованная строка не валидна")
+		return "", err
 	}
 
 	placeID, err := strconv.Atoi(splittedStrings[0])
