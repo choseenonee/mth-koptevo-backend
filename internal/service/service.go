@@ -75,6 +75,9 @@ type User interface {
 	ValidateHash(ctx context.Context, hash string) bool
 	GetCheckedPlaces(ctx context.Context, userID int) ([]models.Place, error)
 	GetChrono(ctx context.Context, userID int) (models.Chrono, error)
+	GetCurrentRoute(ctx context.Context, userID int) (models.RouteDisplay, error)
+	GetPlaceCheckInFlag(ctx context.Context, userID, placeID int) (bool, error)
+	GetRouteCheckInFlag(ctx context.Context, userID, routeID int) (bool, error)
 }
 
 type Trip interface {

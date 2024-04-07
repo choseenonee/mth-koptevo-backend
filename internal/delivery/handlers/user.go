@@ -381,3 +381,139 @@ func (u UserHandler) GetChrono(c *gin.Context) {
 
 	c.JSON(http.StatusOK, chrono)
 }
+
+// GetCurrentRoute @Summary Получить хронологию
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param id query string true "userID"
+// @Success 200 {object} models.RouteDisplay "user properties json"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/current_route [get]
+func (u UserHandler) GetCurrentRoute(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "Get user properties")
+	defer span.End()
+
+	idRaw := c.Query("id")
+	userID, err := strconv.Atoi(idRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	currentRoute, err := u.userService.GetCurrentRoute(ctx, userID)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.BindType, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, currentRoute)
+}
+
+// GetPlaceCheckInFlag @Summary Checkin
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param place_id query string true "place_id"
+// @Param user_id query int true "UserID"
+// @Success 200 {object} string "Just valid hash"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/place_check_in_flag [get]
+func (u UserHandler) GetPlaceCheckInFlag(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "User check in")
+	defer span.End()
+
+	placeIDRaw := c.Query("place_id")
+	placeID, err := strconv.Atoi(placeIDRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userIDRaw := c.Query("user_id")
+	userID, err := strconv.Atoi(userIDRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	flag, err := u.userService.GetPlaceCheckInFlag(ctx, userID, placeID)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, flag)
+}
+
+// GetRouteCheckInFlag @Summary Checkin
+// @Tags user
+// @Accept  json
+// @Produce  json
+// @Param route_id query string true "route_id"
+// @Param user_id query int true "UserID"
+// @Success 200 {object} string "Just valid hash"
+// @Failure 400 {object} map[string]string "Invalid input"
+// @Failure 500 {object} map[string]string "Internal server error"
+// @Router /user/route_check_in_flag [get]
+func (u UserHandler) GetRouteCheckInFlag(c *gin.Context) {
+	ctx, span := u.tracer.Start(c.Request.Context(), "User check in")
+	defer span.End()
+
+	routeIDRaw := c.Query("route_id")
+	routeID, err := strconv.Atoi(routeIDRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	userIDRaw := c.Query("user_id")
+	userID, err := strconv.Atoi(userIDRaw)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	flag, err := u.userService.GetRouteCheckInFlag(ctx, userID, routeID)
+	if err != nil {
+		span.RecordError(err, trace.WithAttributes(
+			attribute.String(tracing.Input, err.Error())),
+		)
+		span.SetStatus(codes.Error, err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, flag)
+}

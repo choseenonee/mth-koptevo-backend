@@ -30,6 +30,12 @@ type RouteRaw struct {
 	RouteBase
 }
 
+type RouteDisplay struct {
+	ID             int `json:"id"`
+	NextPlaceID    int `json:"next_place_id"`
+	CompletedPlace int `json:"completed_place"`
+}
+
 type Route struct {
 	ID     int                 `json:"id"`
 	Tags   []Tag               `json:"tags"`
