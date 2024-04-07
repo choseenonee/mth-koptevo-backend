@@ -170,7 +170,7 @@ func testCaseStartRoute(service User, repo repository.User) {
 func TestUserService_CheckINLogs(t *testing.T) {
 	config.InitConfig()
 
-	fmt.Println(vernamCipher("4 sdinasdiahsduia"))
+	fmt.Println(vernamCipher("650 1dinasdiahsduia"))
 	//logger, _, _ := log.InitLogger()
 	//db := database.GetDB()
 	//
