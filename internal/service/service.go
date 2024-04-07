@@ -76,6 +76,7 @@ type User interface {
 	GetCheckedPlaces(ctx context.Context, userID int) ([]models.Place, error)
 	GetChrono(ctx context.Context, userID int) (models.Chrono, error)
 	GetCurrentRoute(ctx context.Context, userID int) (models.RouteDisplay, error)
+	GetPlaceCheckInFlag(ctx context.Context, userID, placeID int) (bool, error)
 }
 
 type Trip interface {

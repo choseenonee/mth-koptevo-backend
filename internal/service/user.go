@@ -680,3 +680,13 @@ func (u *userService) GetCurrentRoute(ctx context.Context, userID int) (models.R
 
 	return models.RouteDisplay{}, nil
 }
+
+func (u *userService) GetPlaceCheckInFlag(ctx context.Context, userID, placeID int) (bool, error) {
+	userCheckedInPlaceIDs, err := u.userRepo.GetCheckedInPlaceIDs(ctx, userID)
+	if err != nil {
+		u.logger.Error(err.Error())
+		return false, err
+	}
+
+	return containsInt(userCheckedInPlaceIDs, placeID), nil
+}
