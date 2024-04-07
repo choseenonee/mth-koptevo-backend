@@ -23,7 +23,7 @@ type userService struct {
 	tripRepo      repository.Trip
 	reviewRepo    repository.Review
 	logger        *log.Logs
-	hashes        []string
+	hashes        map[string]int
 }
 
 func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo repository.Favourite,
@@ -36,7 +36,7 @@ func InitUserService(userRepo repository.User, logger *log.Logs, favouriteRepo r
 		tripRepo:      tripRepo,
 		reviewRepo:    reviewRepo,
 		logger:        logger,
-		hashes:        make([]string, 1),
+		hashes:        map[string]int{"0": 0},
 	}
 }
 
@@ -59,22 +59,22 @@ func hashString(s string) string {
 	return hex.EncodeToString(hash[:])
 }
 
-func writeHash(hash string, slice *[]string) {
-	for idx, val := range *slice {
-		if val == "" {
-			(*slice)[idx] = hash
-			return
-		}
-	}
-
-	*slice = append(*slice, hash)
+func writeHash(hash string, mapp *map[string]int) {
+	(*mapp)[hash] = 1
 }
 
-func validateHash(hash string, slice *[]string) bool {
-	for idx, val := range *slice {
-		if val == hash {
-			(*slice)[idx] = ""
-			return true
+func validateHash(hash string, mapp *map[string]int) bool {
+	for key, val := range *mapp {
+		if key == hash {
+			if val > 2 {
+				return false
+			} else if val == 1 {
+				(*mapp)[key]++
+				return true
+			} else if val == 2 {
+				(*mapp)[key]++
+				return true
+			}
 		}
 	}
 
