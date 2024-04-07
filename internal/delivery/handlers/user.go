@@ -72,7 +72,7 @@ func (u UserHandler) CheckIn(c *gin.Context) {
 		span.SetStatus(codes.Error, err.Error())
 
 		if strings.Contains(err.Error(), "пользователь уже чекинился в этом месте") {
-			c.JSON(http.StatusMethodNotAllowed, gin.H{"error": err.Error()})
+			c.JSON(http.StatusOK, gin.H{"error": err.Error()})
 			return
 		}
 
